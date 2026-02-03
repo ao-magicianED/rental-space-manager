@@ -70,14 +70,18 @@ interface SimulationResult {
 }
 
 interface LocationAnalysis {
-  stationName: string;
-  stationPassengers: number | null;
-  walkMinutes: number;
+  stationInfo: {
+    name: string;
+    passengers: number | null;
+    line: string | null;
+    prefecture: string | null;
+    rank: number | null;
+  };
   nearbyCompanies: number;
   locationScore: number;
   locationRank: string;
-  adjustmentFactor: number;
-  analysis: string;
+  locationMultiplier: number;
+  insights: string[];
 }
 
 interface SimulationPanelProps {
@@ -288,25 +292,126 @@ export function SimulationPanel({
             </div>
           )}
 
-          <button
-            onClick={runSimulation}
-            disabled={loading || rent <= 0}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 font-medium"
-          >
-            {loading ? (
-              <>
-                <RefreshCw className="w-4 h-4 animate-spin" />
-                シミュレーション中...
-              </>
-            ) : (
-              <>
-                <Calculator className="w-4 h-4" />
-                シミュレーション実行
-              </>
+          <div className="flex gap-2">
+            <button
+              onClick={runSimulation}
+              disabled={loading || rent <= 0}
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 font-medium"
+            >
+              {loading ? (
+                <>
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  シミュレーション中...
+                </>
+              ) : (
+                <>
+                  <Calculator className="w-4 h-4" />
+                  シミュレーション実行
+                </>
+              )}
+            </button>
+            {station && (
+              <button
+                onClick={fetchLocationAnalysis}
+                disabled={locationLoading || !station}
+                className="flex items-center justify-center gap-2 px-4 py-3 border border-purple-200 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 disabled:opacity-50 font-medium"
+                title="立地分析のみ実行"
+              >
+                {locationLoading ? (
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Target className="w-4 h-4" />
+                )}
+              </button>
             )}
-          </button>
+          </div>
         </CardContent>
       </Card>
+
+      {/* 立地分析結果 */}
+      {locationAnalysis && (
+        <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-white">
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <Target className="w-5 h-5 text-purple-600" />
+              立地インテリジェンス分析
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+              {/* 立地スコアゲージ */}
+              <div className="flex flex-col items-center justify-center p-4 bg-white rounded-lg border">
+                <LocationScoreGauge score={locationAnalysis.locationScore} size="lg" />
+                <p className="text-xs text-gray-500 mt-2">
+                  補正係数: {locationAnalysis.locationMultiplier.toFixed(2)}x
+                </p>
+              </div>
+
+              {/* 駅情報 */}
+              <div className="p-4 bg-white rounded-lg border">
+                <div className="flex items-center gap-2 mb-2">
+                  <MapPin className="w-4 h-4 text-blue-500" />
+                  <span className="text-sm font-medium">最寄駅</span>
+                </div>
+                <p className="text-lg font-bold">{locationAnalysis.stationInfo.name}</p>
+                {locationAnalysis.stationInfo.line && (
+                  <p className="text-xs text-gray-500">{locationAnalysis.stationInfo.line}</p>
+                )}
+                {locationAnalysis.stationInfo.rank && (
+                  <p className="text-xs text-purple-600 mt-1">
+                    乗降客数ランク: {locationAnalysis.stationInfo.rank}位
+                  </p>
+                )}
+              </div>
+
+              {/* 乗降客数 */}
+              <div className="p-4 bg-white rounded-lg border">
+                <div className="flex items-center gap-2 mb-2">
+                  <Users className="w-4 h-4 text-green-500" />
+                  <span className="text-sm font-medium">乗降客数</span>
+                </div>
+                {locationAnalysis.stationInfo.passengers ? (
+                  <>
+                    <p className="text-lg font-bold">
+                      {(locationAnalysis.stationInfo.passengers / 10000).toFixed(1)}万人
+                    </p>
+                    <p className="text-xs text-gray-500">/ 日</p>
+                  </>
+                ) : (
+                  <p className="text-gray-400">データなし</p>
+                )}
+              </div>
+
+              {/* 周辺法人数 */}
+              <div className="p-4 bg-white rounded-lg border">
+                <div className="flex items-center gap-2 mb-2">
+                  <Building2 className="w-4 h-4 text-orange-500" />
+                  <span className="text-sm font-medium">周辺法人数</span>
+                </div>
+                <p className="text-lg font-bold">
+                  {locationAnalysis.nearbyCompanies.toLocaleString()}社
+                </p>
+                <p className="text-xs text-gray-500">推定値</p>
+              </div>
+            </div>
+
+            {/* 立地インサイト */}
+            {locationAnalysis.insights.length > 0 && (
+              <div className="mt-4 p-3 bg-purple-50 rounded-lg">
+                <p className="text-xs font-medium text-purple-700 mb-2">立地分析コメント</p>
+                <ul className="space-y-1">
+                  {locationAnalysis.insights.map((insight, i) => (
+                    <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
+                      <span className="text-purple-500">•</span>
+                      {insight}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* 結果表示 */}
       {result && (

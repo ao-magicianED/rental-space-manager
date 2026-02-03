@@ -78,6 +78,7 @@ export function PropertyProspects() {
   const [editingProspect, setEditingProspect] = useState<Partial<PropertyProspect> | null>(null);
   const [ocrLoading, setOcrLoading] = useState(false);
   const [ocrResult, setOcrResult] = useState<any>(null);
+  const [locationCalcLoading, setLocationCalcLoading] = useState(false);
 
   const fetchProspects = useCallback(async () => {
     setLoading(true);
@@ -204,12 +205,66 @@ export function PropertyProspects() {
     }
   };
 
+  // 立地スコア一括計算
+  const handleCalculateAllLocationScores = async () => {
+    if (!confirm("全物件候補の立地スコアを一括計算しますか？\n（最寄駅情報がある物件のみ対象）")) {
+      return;
+    }
+
+    setLocationCalcLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/property-prospects/calculate-all-location-scores`, {
+        method: "POST",
+      });
+      if (res.ok) {
+        const result = await res.json();
+        alert(`${result.updated}件の物件候補の立地スコアを更新しました`);
+        fetchProspects();
+      } else {
+        const error = await res.json();
+        alert(`エラー: ${error.error}`);
+      }
+    } catch (error) {
+      console.error("Location calc error:", error);
+      alert("立地スコア計算中にエラーが発生しました");
+    } finally {
+      setLocationCalcLoading(false);
+    }
+  };
+
+  // 個別立地スコア計算
+  const handleCalculateLocationScore = async (id: number) => {
+    try {
+      const res = await fetch(`${API_BASE}/api/property-prospects/${id}/location-score`, {
+        method: "POST",
+      });
+      if (res.ok) {
+        fetchProspects();
+      }
+    } catch (error) {
+      console.error("Location score calc error:", error);
+    }
+  };
+
   return (
     <PageLayout
       title="物件投資分析"
       description="マイソクOCR解析・坪単価計算・シミュレーション"
       actions={
         <div className="flex items-center gap-3">
+          <button
+            onClick={handleCalculateAllLocationScores}
+            disabled={locationCalcLoading || prospects.length === 0}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-violet-600 text-white shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 transition-all disabled:opacity-50"
+            title="全物件の立地スコアを一括計算"
+          >
+            {locationCalcLoading ? (
+              <RefreshCw className="w-4 h-4 animate-spin" />
+            ) : (
+              <Target className="w-4 h-4" />
+            )}
+            立地分析
+          </button>
           <button
             onClick={() => {
               setShowUploadModal(true);
@@ -400,6 +455,15 @@ export function PropertyProspects() {
                         >
                           <Edit3 className="w-4 h-4 text-gray-500" />
                         </button>
+                        {p.nearestStation && !p.locationScore && (
+                          <button
+                            onClick={() => handleCalculateLocationScore(p.id)}
+                            className="p-1.5 hover:bg-purple-100 rounded"
+                            title="立地スコア計算"
+                          >
+                            <Target className="w-4 h-4 text-purple-600" />
+                          </button>
+                        )}
                         {p.status === "draft" && (
                           <button
                             onClick={() => handleStatusChange(p.id, "evaluating")}
@@ -508,7 +572,6 @@ export function PropertyProspects() {
             </Card>
           </div>
         )}
-      </main>
 
       {/* マイソクアップロードモーダル */}
       {showUploadModal && (
