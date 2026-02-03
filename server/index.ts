@@ -10,7 +10,9 @@ import {
   bookings,
   expenses,
   importLogs,
+  propertyProspects,
 } from "./db/schema";
+import { extractMaisokuData, calculatePricePerUnit } from "./services/ocr-service";
 import { eq, sql, and, gte, lte, desc } from "drizzle-orm";
 import { getParser } from "./parsers";
 import type { ParsedBooking } from "./parsers";
@@ -1161,6 +1163,168 @@ app.get("/api/analytics/price-recommendations", async (req, res) => {
   } catch (error) {
     console.error("Error fetching price recommendations:", error);
     res.status(500).json({ error: "Failed to fetch price recommendations" });
+  }
+});
+
+// ========================================
+// 物件候補API
+// ========================================
+
+// 物件候補一覧取得
+app.get("/api/property-prospects", async (req, res) => {
+  try {
+    const { status } = req.query;
+
+    let query = db.select().from(propertyProspects).orderBy(desc(propertyProspects.createdAt));
+
+    if (status) {
+      query = query.where(eq(propertyProspects.status, status as string));
+    }
+
+    const result = await query;
+    res.json(result);
+  } catch (error) {
+    console.error("Error fetching property prospects:", error);
+    res.status(500).json({ error: "Failed to fetch property prospects" });
+  }
+});
+
+// 物件候補詳細取得
+app.get("/api/property-prospects/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await db
+      .select()
+      .from(propertyProspects)
+      .where(eq(propertyProspects.id, parseInt(id)))
+      .limit(1);
+
+    if (result.length === 0) {
+      return res.status(404).json({ error: "Property prospect not found" });
+    }
+
+    res.json(result[0]);
+  } catch (error) {
+    console.error("Error fetching property prospect:", error);
+    res.status(500).json({ error: "Failed to fetch property prospect" });
+  }
+});
+
+// 物件候補作成
+app.post("/api/property-prospects", async (req, res) => {
+  try {
+    const data = req.body;
+
+    // 坪単価・平米単価を計算
+    const { pricePerTsubo, pricePerSqm } = calculatePricePerUnit(
+      data.rent,
+      data.areaTsubo,
+      data.areaSqm
+    );
+
+    const result = await db
+      .insert(propertyProspects)
+      .values({
+        ...data,
+        pricePerTsubo,
+        pricePerSqm,
+      })
+      .returning();
+
+    res.json(result[0]);
+  } catch (error) {
+    console.error("Error creating property prospect:", error);
+    res.status(500).json({ error: "Failed to create property prospect" });
+  }
+});
+
+// 物件候補更新
+app.put("/api/property-prospects/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const data = req.body;
+
+    // 坪単価・平米単価を再計算
+    const { pricePerTsubo, pricePerSqm } = calculatePricePerUnit(
+      data.rent,
+      data.areaTsubo,
+      data.areaSqm
+    );
+
+    const result = await db
+      .update(propertyProspects)
+      .set({
+        ...data,
+        pricePerTsubo,
+        pricePerSqm,
+        updatedAt: new Date().toISOString(),
+      })
+      .where(eq(propertyProspects.id, parseInt(id)))
+      .returning();
+
+    res.json(result[0]);
+  } catch (error) {
+    console.error("Error updating property prospect:", error);
+    res.status(500).json({ error: "Failed to update property prospect" });
+  }
+});
+
+// 物件候補削除
+app.delete("/api/property-prospects/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    await db
+      .delete(propertyProspects)
+      .where(eq(propertyProspects.id, parseInt(id)));
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting property prospect:", error);
+    res.status(500).json({ error: "Failed to delete property prospect" });
+  }
+});
+
+// マイソクOCR解析
+app.post("/api/property-prospects/ocr", async (req, res) => {
+  try {
+    const { imageBase64, mediaType } = req.body;
+
+    if (!imageBase64) {
+      return res.status(400).json({ error: "imageBase64 is required" });
+    }
+
+    const ocrResult = await extractMaisokuData(
+      imageBase64,
+      mediaType || "image/jpeg"
+    );
+
+    if (!ocrResult.success) {
+      return res.status(400).json({
+        error: "OCR extraction failed",
+        details: ocrResult.error,
+      });
+    }
+
+    // 坪単価・平米単価を計算
+    const { pricePerTsubo, pricePerSqm } = calculatePricePerUnit(
+      ocrResult.data?.rent || null,
+      ocrResult.data?.areaTsubo || null,
+      ocrResult.data?.areaSqm || null
+    );
+
+    res.json({
+      success: true,
+      extracted: {
+        ...ocrResult.data,
+        pricePerTsubo,
+        pricePerSqm,
+      },
+      confidence: ocrResult.confidence,
+      rawText: ocrResult.rawText,
+    });
+  } catch (error) {
+    console.error("Error in OCR:", error);
+    res.status(500).json({ error: "OCR processing failed", details: String(error) });
   }
 });
 

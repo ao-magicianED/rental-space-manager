@@ -133,6 +133,62 @@ export const importLogs = sqliteTable("import_logs", {
   errorMessage: text("error_message"),
 });
 
+/**
+ * 物件候補データ（マイソクOCR解析結果）
+ */
+export const propertyProspects = sqliteTable("property_prospects", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+
+  // 基本情報
+  name: text("name").notNull(), // 物件名
+  address: text("address"), // 住所
+
+  // 面積
+  areaTsubo: real("area_tsubo"), // 坪数
+  areaSqm: real("area_sqm"), // 平米数
+
+  // 賃料・初期費用
+  rent: integer("rent"), // 月額賃料
+  managementFee: integer("management_fee"), // 共益費・管理費
+  deposit: real("deposit"), // 敷金（ヶ月）
+  keyMoney: real("key_money"), // 礼金（ヶ月）
+
+  // 物件情報
+  layout: text("layout"), // 間取り（1LDK、ワンルーム等）
+  floor: text("floor"), // 階数
+  buildingAge: integer("building_age"), // 築年数
+  structure: text("structure"), // 構造（RC造、SRC造、木造等）
+
+  // アクセス
+  nearestStation: text("nearest_station"), // 最寄駅
+  railwayLine: text("railway_line"), // 路線名
+  walkMinutes: integer("walk_minutes"), // 徒歩分数
+
+  // 計算フィールド（坪単価・平米単価）
+  pricePerTsubo: real("price_per_tsubo"), // 賃料÷坪数
+  pricePerSqm: real("price_per_sqm"), // 賃料÷平米数
+
+  // シミュレーション結果
+  estimatedRevenue: integer("estimated_revenue"), // 予測月間売上
+  estimatedOccupancy: real("estimated_occupancy"), // 予測稼働率
+  estimatedROI: real("estimated_roi"), // 予測ROI
+  breakEvenMonths: integer("break_even_months"), // 損益分岐月数
+
+  // 位置情報スコア
+  stationPassengers: integer("station_passengers"), // 駅乗降客数
+  nearbyCompanies: integer("nearby_companies"), // 周辺法人数
+  locationScore: integer("location_score"), // 立地スコア（0-100）
+
+  // メタデータ
+  sourceImage: text("source_image"), // 元画像パス
+  ocrConfidence: real("ocr_confidence"), // OCR信頼度
+  notes: text("notes"), // メモ
+  status: text("status").default("draft"), // draft, evaluating, rejected, approved
+
+  createdAt: text("created_at").default("CURRENT_TIMESTAMP"),
+  updatedAt: text("updated_at").default("CURRENT_TIMESTAMP"),
+});
+
 // 型エクスポート
 export type Platform = typeof platforms.$inferSelect;
 export type NewPlatform = typeof platforms.$inferInsert;
@@ -148,3 +204,5 @@ export type Expense = typeof expenses.$inferSelect;
 export type NewExpense = typeof expenses.$inferInsert;
 export type ImportLog = typeof importLogs.$inferSelect;
 export type NewImportLog = typeof importLogs.$inferInsert;
+export type PropertyProspect = typeof propertyProspects.$inferSelect;
+export type NewPropertyProspect = typeof propertyProspects.$inferInsert;

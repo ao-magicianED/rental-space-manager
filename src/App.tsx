@@ -4,6 +4,7 @@ import { Dashboard } from "./pages/Dashboard";
 import { Import } from "./pages/Import";
 import { Settings } from "./pages/Settings";
 import { Analytics } from "./pages/Analytics";
+import { PropertyProspects } from "./pages/PropertyProspects";
 import "./index.css";
 
 const queryClient = new QueryClient({
@@ -15,13 +16,14 @@ const queryClient = new QueryClient({
   },
 });
 
-type Page = "dashboard" | "import" | "settings" | "analytics";
+type Page = "dashboard" | "import" | "settings" | "analytics" | "properties";
 
 function getPageFromHash(): Page {
   const hash = window.location.hash.slice(1);
   if (hash === "import") return "import";
   if (hash === "settings") return "settings";
   if (hash === "analytics") return "analytics";
+  if (hash === "properties") return "properties";
   return "dashboard";
 }
 
@@ -52,6 +54,8 @@ function Router({ currentPage }: { currentPage: Page }) {
       return <Settings />;
     case "analytics":
       return <Analytics />;
+    case "properties":
+      return <PropertyProspects />;
     default:
       return <Dashboard />;
   }
