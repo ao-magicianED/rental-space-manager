@@ -148,7 +148,7 @@ export function GuestCountAnalysis({ data, avgGuestCount }: GuestCountAnalysisPr
                     fill="#8884d8"
                     paddingAngle={2}
                     dataKey="売上"
-                    label={({ name, 売上 }) =>
+                    label={({ name, 売上 }: any) =>
                       totalAmount > 0 && (売上 / totalAmount) * 100 > 5
                         ? `${name}`
                         : ""
@@ -159,7 +159,7 @@ export function GuestCountAnalysis({ data, avgGuestCount }: GuestCountAnalysisPr
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value: number) => [formatCurrency(value), "売上"]} />
+                  <Tooltip formatter={(value) => typeof value === 'number' ? [formatCurrency(value), "売上"] : null} />
                 </PieChart>
               </ResponsiveContainer>
             </div>

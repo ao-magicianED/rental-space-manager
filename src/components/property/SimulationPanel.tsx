@@ -10,11 +10,6 @@ import {
   LineChart,
   Line,
   Legend,
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  Radar,
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import {
@@ -503,7 +498,7 @@ export function SimulationPanel({
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="name" />
                       <YAxis tickFormatter={(v) => `¥${(v / 1000).toFixed(0)}k`} />
-                      <Tooltip formatter={(value: number) => [formatCurrency(value), ""]} />
+                      <Tooltip formatter={(value) => typeof value === 'number' ? [formatCurrency(value), ""] : null} />
                       <Legend />
                       <Bar dataKey="売上" fill="#3b82f6" radius={[4, 4, 0, 0]} />
                       <Bar dataKey="利益" fill="#22c55e" radius={[4, 4, 0, 0]} />
@@ -525,7 +520,7 @@ export function SimulationPanel({
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="月" tick={{ fontSize: 11 }} />
                       <YAxis tickFormatter={(v) => `¥${(v / 1000).toFixed(0)}k`} />
-                      <Tooltip formatter={(value: number) => [formatCurrency(value), "予測売上"]} />
+                      <Tooltip formatter={(value) => typeof value === 'number' ? [formatCurrency(value), "予測売上"] : null} />
                       <Line
                         type="monotone"
                         dataKey="予測売上"

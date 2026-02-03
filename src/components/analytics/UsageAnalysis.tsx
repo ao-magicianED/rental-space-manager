@@ -112,7 +112,7 @@ export function UsageAnalysis({ data, totalBookings, totalAmount }: UsageAnalysi
                   />
                   <YAxis type="category" dataKey="name" width={70} tick={{ fontSize: 12 }} />
                   <Tooltip
-                    formatter={(value: number) => [formatCurrency(value), "売上"]}
+                    formatter={(value) => typeof value === 'number' ? [formatCurrency(value), "売上"] : null}
                   />
                   <Bar dataKey="売上" fill="#3b82f6" radius={[0, 4, 4, 0]} />
                 </BarChart>
@@ -139,7 +139,7 @@ export function UsageAnalysis({ data, totalBookings, totalAmount }: UsageAnalysi
                     fill="#8884d8"
                     paddingAngle={2}
                     dataKey="売上"
-                    label={({ name, 構成比 }) =>
+                    label={({ name, 構成比 }: any) =>
                       構成比 > 5 ? `${name} ${構成比.toFixed(0)}%` : ""
                     }
                     labelLine={false}
@@ -149,7 +149,7 @@ export function UsageAnalysis({ data, totalBookings, totalAmount }: UsageAnalysi
                     ))}
                   </Pie>
                   <Tooltip
-                    formatter={(value: number) => [formatCurrency(value), "売上"]}
+                    formatter={(value) => typeof value === 'number' ? [formatCurrency(value), "売上"] : null}
                   />
                   <Legend />
                 </PieChart>

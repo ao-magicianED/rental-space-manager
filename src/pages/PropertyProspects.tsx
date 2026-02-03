@@ -13,13 +13,12 @@ import {
   X,
   Check,
   Eye,
-  Calculator,
   LineChart,
   Users,
   Target,
 } from "lucide-react";
 import { PageLayout } from "../components/layout/PageLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import { Card, CardContent } from "../components/ui/card";
 import { SimulationPanel } from "../components/property/SimulationPanel";
 import { LocationScoreBadge } from "../components/property/LocationScoreGauge";
 

@@ -166,7 +166,8 @@ export function LeadTimeAnalysis({
                   <XAxis dataKey="日数" tick={{ fontSize: 11 }} />
                   <YAxis />
                   <Tooltip
-                    formatter={(value: number, name: string) => {
+                    formatter={(value, name) => {
+                      if (typeof value !== 'number') return null;
                       if (name === "平均単価") return [formatCurrency(value), name];
                       return [value, name];
                     }}
@@ -193,7 +194,7 @@ export function LeadTimeAnalysis({
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="日数" tick={{ fontSize: 11 }} />
                   <YAxis tickFormatter={(v) => `¥${(v / 1000).toFixed(0)}k`} />
-                  <Tooltip formatter={(value: number) => [formatCurrency(value), "平均単価"]} />
+                  <Tooltip formatter={(value) => typeof value === 'number' ? [formatCurrency(value), "平均単価"] : null} />
                   <Line
                     type="monotone"
                     dataKey="平均単価"
