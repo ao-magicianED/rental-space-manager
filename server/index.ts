@@ -14,6 +14,14 @@ import {
 } from "./db/schema";
 import { extractMaisokuData, calculatePricePerUnit } from "./services/ocr-service";
 import { runSimulation, getPerformanceSummary } from "./services/simulation-engine";
+import {
+  getStationInfo,
+  getNearbyCompanies,
+  calculateLocationScore,
+  getLocationRank,
+  getLocationMultiplier,
+  generateLocationAnalysis,
+} from "./services/location-service";
 import { eq, sql, and, gte, lte, desc } from "drizzle-orm";
 import { getParser } from "./parsers";
 import type { ParsedBooking } from "./parsers";
@@ -1421,6 +1429,182 @@ app.post("/api/property-prospects/:id/simulate", async (req, res) => {
   } catch (error) {
     console.error("Error simulating property prospect:", error);
     res.status(500).json({ error: "Simulation failed", details: String(error) });
+  }
+});
+
+// ========================================
+// 位置情報インテリジェンスAPI（Phase 4）
+// ========================================
+
+// 駅乗降客数情報を取得
+app.get("/api/location/station-info", async (req, res) => {
+  try {
+    const { stationName } = req.query;
+
+    if (!stationName || typeof stationName !== "string") {
+      return res.status(400).json({ error: "stationName is required" });
+    }
+
+    const result = await getStationInfo(stationName);
+    res.json(result);
+  } catch (error) {
+    console.error("Error fetching station info:", error);
+    res.status(500).json({ error: "Failed to fetch station info" });
+  }
+});
+
+// 周辺法人数を取得
+app.get("/api/location/nearby-companies", async (req, res) => {
+  try {
+    const { address } = req.query;
+
+    if (!address || typeof address !== "string") {
+      return res.status(400).json({ error: "address is required" });
+    }
+
+    const count = await getNearbyCompanies(address);
+    res.json({ address, nearbyCompanies: count });
+  } catch (error) {
+    console.error("Error fetching nearby companies:", error);
+    res.status(500).json({ error: "Failed to fetch nearby companies" });
+  }
+});
+
+// 立地分析を実行
+app.post("/api/location/analyze", async (req, res) => {
+  try {
+    const { stationName, walkMinutes, address } = req.body;
+
+    if (!stationName) {
+      return res.status(400).json({ error: "stationName is required" });
+    }
+
+    const analysis = await generateLocationAnalysis(
+      stationName,
+      walkMinutes || null,
+      address || null
+    );
+
+    res.json(analysis);
+  } catch (error) {
+    console.error("Error analyzing location:", error);
+    res.status(500).json({ error: "Location analysis failed" });
+  }
+});
+
+// 物件候補の立地スコアを計算・保存
+app.post("/api/property-prospects/:id/location-score", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const prospectId = parseInt(id);
+
+    // 既存の物件候補を取得
+    const [prospect] = await db
+      .select()
+      .from(propertyProspects)
+      .where(eq(propertyProspects.id, prospectId));
+
+    if (!prospect) {
+      return res.status(404).json({ error: "Property prospect not found" });
+    }
+
+    // 駅情報を取得
+    let stationPassengers: number | null = null;
+    if (prospect.nearestStation) {
+      const stationInfo = await getStationInfo(prospect.nearestStation);
+      stationPassengers = stationInfo.passengers;
+    }
+
+    // 周辺法人数を取得
+    let nearbyCompanies: number | null = null;
+    if (prospect.address) {
+      nearbyCompanies = await getNearbyCompanies(prospect.address);
+    }
+
+    // 立地スコアを計算
+    const locationScore = calculateLocationScore({
+      stationPassengers,
+      walkMinutes: prospect.walkMinutes,
+      nearbyCompanies,
+    });
+
+    // DB更新
+    const [updated] = await db
+      .update(propertyProspects)
+      .set({
+        stationPassengers,
+        nearbyCompanies,
+        locationScore,
+        updatedAt: new Date().toISOString(),
+      })
+      .where(eq(propertyProspects.id, prospectId))
+      .returning();
+
+    res.json({
+      prospect: updated,
+      analysis: {
+        stationPassengers,
+        nearbyCompanies,
+        locationScore,
+        locationRank: getLocationRank(locationScore),
+        locationMultiplier: getLocationMultiplier(locationScore),
+      },
+    });
+  } catch (error) {
+    console.error("Error calculating location score:", error);
+    res.status(500).json({ error: "Failed to calculate location score" });
+  }
+});
+
+// 全物件候補の立地スコアを一括計算
+app.post("/api/property-prospects/calculate-all-location-scores", async (_req, res) => {
+  try {
+    const allProspects = await db.select().from(propertyProspects);
+    const results = [];
+
+    for (const prospect of allProspects) {
+      // 駅情報を取得
+      let stationPassengers: number | null = null;
+      if (prospect.nearestStation) {
+        const stationInfo = await getStationInfo(prospect.nearestStation);
+        stationPassengers = stationInfo.passengers;
+      }
+
+      // 周辺法人数を取得
+      let nearbyCompanies: number | null = null;
+      if (prospect.address) {
+        nearbyCompanies = await getNearbyCompanies(prospect.address);
+      }
+
+      // 立地スコアを計算
+      const locationScore = calculateLocationScore({
+        stationPassengers,
+        walkMinutes: prospect.walkMinutes,
+        nearbyCompanies,
+      });
+
+      // DB更新
+      const [updated] = await db
+        .update(propertyProspects)
+        .set({
+          stationPassengers,
+          nearbyCompanies,
+          locationScore,
+          updatedAt: new Date().toISOString(),
+        })
+        .where(eq(propertyProspects.id, prospect.id))
+        .returning();
+
+      results.push(updated);
+    }
+
+    res.json({
+      updated: results.length,
+      prospects: results,
+    });
+  } catch (error) {
+    console.error("Error calculating all location scores:", error);
+    res.status(500).json({ error: "Failed to calculate location scores" });
   }
 });
 

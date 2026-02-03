@@ -8,6 +8,7 @@ import {
   Link,
   AlertCircle,
 } from "lucide-react";
+import { PageLayout } from "../components/layout/PageLayout";
 import { Card, CardHeader, CardTitle, CardContent } from "../components/ui/card";
 import { api } from "../lib/api";
 import type { Platform, Property, PlatformMapping } from "../lib/api";
@@ -92,55 +93,37 @@ export function Settings() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* ヘッダー */}
-      <header className="border-b bg-white">
-        <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">設定</h1>
-              <p className="mt-1 text-sm text-gray-500">
-                施設とプラットフォームのマッピングを管理
-              </p>
-            </div>
-            <a
-              href="/"
-              className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-            >
-              ダッシュボードに戻る
-            </a>
-          </div>
+    <PageLayout
+      title="設定"
+      description="施設とプラットフォームのマッピングを管理"
+    >
+      {/* タブ */}
+      <div className="mb-6 -mt-2">
+        <div className="inline-flex rounded-xl bg-slate-100 p-1">
+          <button
+            onClick={() => setActiveTab("properties")}
+            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg transition-all ${
+              activeTab === "properties"
+                ? "bg-white text-slate-900 shadow-sm"
+                : "text-slate-500 hover:text-slate-700"
+            }`}
+          >
+            <Building2 className="h-4 w-4" />
+            施設管理
+          </button>
+          <button
+            onClick={() => setActiveTab("mappings")}
+            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg transition-all ${
+              activeTab === "mappings"
+                ? "bg-white text-slate-900 shadow-sm"
+                : "text-slate-500 hover:text-slate-700"
+            }`}
+          >
+            <Link className="h-4 w-4" />
+            施設名マッピング
+          </button>
         </div>
-      </header>
-
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        {/* タブ */}
-        <div className="mb-6 border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8">
-            <button
-              onClick={() => setActiveTab("properties")}
-              className={`border-b-2 px-1 py-4 text-sm font-medium ${
-                activeTab === "properties"
-                  ? "border-blue-500 text-blue-600"
-                  : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
-              }`}
-            >
-              <Building2 className="mr-2 inline h-4 w-4" />
-              施設管理
-            </button>
-            <button
-              onClick={() => setActiveTab("mappings")}
-              className={`border-b-2 px-1 py-4 text-sm font-medium ${
-                activeTab === "mappings"
-                  ? "border-blue-500 text-blue-600"
-                  : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
-              }`}
-            >
-              <Link className="mr-2 inline h-4 w-4" />
-              施設名マッピング
-            </button>
-          </nav>
-        </div>
+      </div>
 
         {/* エラー表示 */}
         {error && (
@@ -423,8 +406,7 @@ export function Settings() {
             isNew={newMapping}
           />
         )}
-      </main>
-    </div>
+    </PageLayout>
   );
 }
 

@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { Upload, FileText, AlertCircle, CheckCircle } from "lucide-react";
+import { PageLayout } from "../components/layout/PageLayout";
 import { Card, CardHeader, CardTitle, CardContent } from "../components/ui/card";
 import { api } from "../lib/api";
 import type { Platform } from "../lib/api";
@@ -149,30 +150,10 @@ export function Import() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* ヘッダー */}
-      <header className="border-b bg-white">
-        <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                CSVインポート
-              </h1>
-              <p className="mt-1 text-sm text-gray-500">
-                各プラットフォームの売上データを取り込みます
-              </p>
-            </div>
-            <a
-              href="/"
-              className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-            >
-              ダッシュボードに戻る
-            </a>
-          </div>
-        </div>
-      </header>
-
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <PageLayout
+      title="CSVインポート"
+      description="各プラットフォームの売上データを取り込みます"
+    >
         <div className="grid gap-6 lg:grid-cols-3">
           {/* 左カラム: アップロード */}
           <div className="lg:col-span-2">
@@ -413,20 +394,19 @@ export function Import() {
               </CardContent>
             </Card>
 
-            <Card className="mt-6">
+            <Card className="mt-6 rounded-2xl border-slate-200 shadow-sm">
               <CardHeader>
                 <CardTitle>インポート履歴</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-slate-500">
                   インポート履歴は「設定」ページで確認できます。
                 </p>
               </CardContent>
             </Card>
           </div>
         </div>
-      </main>
-    </div>
+    </PageLayout>
   );
 }
 

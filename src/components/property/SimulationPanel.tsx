@@ -28,7 +28,11 @@ import {
   DollarSign,
   RefreshCw,
   Lightbulb,
+  MapPin,
+  Users,
+  Target,
 } from "lucide-react";
+import { LocationScoreGauge } from "./LocationScoreGauge";
 
 const API_BASE = "http://localhost:5001";
 
@@ -65,6 +69,17 @@ interface SimulationResult {
   insights: string[];
 }
 
+interface LocationAnalysis {
+  stationName: string;
+  stationPassengers: number | null;
+  walkMinutes: number;
+  nearbyCompanies: number;
+  locationScore: number;
+  locationRank: string;
+  adjustmentFactor: number;
+  analysis: string;
+}
+
 interface SimulationPanelProps {
   prospectId?: number;
   initialRent?: number;
@@ -89,9 +104,38 @@ export function SimulationPanel({
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<SimulationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [locationAnalysis, setLocationAnalysis] = useState<LocationAnalysis | null>(null);
+  const [locationLoading, setLocationLoading] = useState(false);
 
   const formatCurrency = (value: number) => `¥${value.toLocaleString()}`;
   const formatPercent = (value: number) => `${Math.round(value * 100)}%`;
+
+  // 立地分析を取得
+  const fetchLocationAnalysis = async () => {
+    if (!station) return;
+
+    setLocationLoading(true);
+    try {
+      const response = await fetch(`${API_BASE}/api/location/analyze`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          stationName: station,
+          walkMinutes: walkMinutes || 5,
+          address: "", // 住所は省略可能
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setLocationAnalysis(data);
+      }
+    } catch (err) {
+      console.error("立地分析エラー:", err);
+    } finally {
+      setLocationLoading(false);
+    }
+  };
 
   const runSimulation = async () => {
     if (rent <= 0) {
@@ -101,6 +145,11 @@ export function SimulationPanel({
 
     setLoading(true);
     setError(null);
+
+    // 立地分析も同時に実行
+    if (station) {
+      fetchLocationAnalysis();
+    }
 
     try {
       let response;

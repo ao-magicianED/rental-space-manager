@@ -15,6 +15,10 @@ export interface SimulationInput {
   nearestStation?: string | null;
   walkMinutes?: number | null;
   capacity?: number | null;
+  // Phase 4: 位置情報インテリジェンス
+  stationPassengers?: number | null;
+  nearbyCompanies?: number | null;
+  locationScore?: number | null;
 }
 
 // シナリオ結果
@@ -154,33 +158,65 @@ async function getSeasonalIndices(): Promise<Map<number, number>> {
 
 /**
  * 類似度を計算（0-1）
+ * Phase 4: 立地スコアを考慮した拡張版
  */
 function calculateSimilarity(
   input: SimulationInput,
   property: { monthlyRent: number | null; roomCount: number | null }
 ): number {
   let similarity = 0;
-  let factors = 0;
+  let totalWeight = 0;
 
-  // 賃料の類似度（±50%以内で高スコア）
+  // 1. 賃料の類似度（重み: 0.35）
   if (property.monthlyRent && input.rent) {
     const rentRatio = Math.min(property.monthlyRent, input.rent) / Math.max(property.monthlyRent, input.rent);
-    similarity += rentRatio * 0.5;
-    factors += 0.5;
+    similarity += rentRatio * 0.35;
+    totalWeight += 0.35;
   }
 
-  // 面積の類似度（面積データがあれば）
+  // 2. 面積の類似度（重み: 0.25）
   if (input.areaTsubo && input.areaTsubo > 0) {
-    // 現在は面積データがないため、スキップ
-    // 将来的に施設に面積を追加したら有効化
+    // 現在は施設に面積データがないため、将来的に有効化
+    // similarity += areaRatio * 0.25;
+    // totalWeight += 0.25;
+  }
+
+  // 3. 立地スコアの類似度（重み: 0.25）[Phase 4追加]
+  // 入力物件の立地スコアと、既存物件の平均立地スコア（仮定: 60）を比較
+  if (input.locationScore !== undefined && input.locationScore !== null) {
+    const avgPropertyLocationScore = 60; // 既存物件の平均スコア（仮定）
+    const scoreDiff = Math.abs(input.locationScore - avgPropertyLocationScore);
+    const scoreRatio = Math.max(0, 1 - scoreDiff / 100);
+    similarity += scoreRatio * 0.25;
+    totalWeight += 0.25;
+  }
+
+  // 4. 駅乗降客数の類似度（重み: 0.15）[Phase 4追加]
+  if (input.stationPassengers !== undefined && input.stationPassengers !== null) {
+    // 既存物件の平均乗降客数（仮定: 50,000人/日）
+    const avgPropertyPassengers = 50000;
+    const passengerRatio = Math.min(input.stationPassengers, avgPropertyPassengers) /
+                          Math.max(input.stationPassengers, avgPropertyPassengers);
+    similarity += passengerRatio * 0.15;
+    totalWeight += 0.15;
   }
 
   // 基本類似度（データがない場合のフォールバック）
-  if (factors === 0) {
+  if (totalWeight === 0) {
     return 0.5;
   }
 
-  return similarity / factors;
+  return similarity / totalWeight;
+}
+
+/**
+ * 立地補正係数を計算
+ * Phase 4: 立地スコアに基づいて売上予測を補正
+ */
+function getLocationAdjustmentFactor(locationScore: number | null): number {
+  if (locationScore === null || locationScore === undefined) return 1.0;
+  // スコア50で1.0、スコア100で1.3、スコア0で0.7
+  return 1 + ((locationScore - 50) / 50) * 0.3;
 }
 
 /**
@@ -246,6 +282,10 @@ export async function runSimulation(input: SimulationInput): Promise<SimulationR
     const rentFactor = input.rent / avgRent;
     predictedRevenue = predictedRevenue * Math.sqrt(rentFactor); // 緩やかな調整
   }
+
+  // Phase 4: 立地スコアによる補正
+  const locationFactor = getLocationAdjustmentFactor(input.locationScore ?? null);
+  predictedRevenue = predictedRevenue * locationFactor;
 
   // 3シナリオを計算
   const scenarios = {
@@ -351,6 +391,45 @@ function generateInsights(
       insights.push("駅近物件のため、集客面で有利です。");
     } else if (input.walkMinutes >= 10) {
       insights.push("駅から距離があるため、価格設定やマーケティングに工夫が必要です。");
+    }
+  }
+
+  // Phase 4: 立地スコアに基づくインサイト
+  if (input.locationScore !== undefined && input.locationScore !== null) {
+    if (input.locationScore >= 80) {
+      insights.push("立地スコアが非常に高く（Aランク）、集客面で大きなアドバンテージがあります。");
+    } else if (input.locationScore >= 60) {
+      insights.push("立地スコアは良好（Bランク）です。標準以上の集客が期待できます。");
+    } else if (input.locationScore >= 40) {
+      insights.push("立地スコアは標準的（Cランク）です。競合との差別化を意識しましょう。");
+    } else {
+      insights.push("立地スコアが低め（D/Eランク）です。価格競争力やマーケティング強化が重要です。");
+    }
+  }
+
+  // Phase 4: 駅乗降客数に基づくインサイト
+  if (input.stationPassengers !== undefined && input.stationPassengers !== null) {
+    if (input.stationPassengers >= 100000) {
+      insights.push(
+        `最寄駅の乗降客数が${(input.stationPassengers / 10000).toFixed(1)}万人/日と多く、高い露出が期待できます。`
+      );
+    } else if (input.stationPassengers >= 50000) {
+      insights.push(
+        `最寄駅は中規模ターミナル（${(input.stationPassengers / 10000).toFixed(1)}万人/日）で、安定した集客が見込めます。`
+      );
+    } else if (input.stationPassengers < 30000) {
+      insights.push(
+        `最寄駅の乗降客数が${(input.stationPassengers / 10000).toFixed(1)}万人/日と少なめです。Web集客の強化を検討してください。`
+      );
+    }
+  }
+
+  // Phase 4: 周辺法人数に基づくインサイト
+  if (input.nearbyCompanies !== undefined && input.nearbyCompanies !== null) {
+    if (input.nearbyCompanies >= 3000) {
+      insights.push("周辺に法人が多く、ビジネス利用（会議室・セミナー）の需要が高いエリアです。");
+    } else if (input.nearbyCompanies >= 1500) {
+      insights.push("オフィスエリアとして一定の法人需要があります。");
     }
   }
 

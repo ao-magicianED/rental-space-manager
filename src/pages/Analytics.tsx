@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { Calendar, BarChart3, Users, TrendingUp, Grid3X3, RefreshCw, Clock } from "lucide-react";
+import { PageLayout } from "../components/layout/PageLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { HeatmapChart } from "../components/analytics/HeatmapChart";
 import { KpiDashboard } from "../components/analytics/KpiDashboard";
@@ -129,93 +130,93 @@ export function Analytics() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* ヘッダー */}
-      <header className="bg-white border-b px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">分析</h1>
-            <p className="text-sm text-gray-500">売上・稼働データの詳細分析</p>
+    <PageLayout
+      title="分析"
+      description="売上・稼働データの詳細分析"
+      actions={
+        <div className="flex items-center gap-3">
+          {/* 期間選択 */}
+          <div className="flex items-center gap-2 text-sm bg-white rounded-xl border border-slate-200 px-3 py-2">
+            <Calendar className="w-4 h-4 text-slate-400" />
+            <input
+              type="date"
+              value={dateRange.startDate}
+              onChange={(e) =>
+                setDateRange((prev) => ({ ...prev, startDate: e.target.value }))
+              }
+              className="border-none focus:ring-0 text-sm"
+            />
+            <span className="text-slate-400">〜</span>
+            <input
+              type="date"
+              value={dateRange.endDate}
+              onChange={(e) =>
+                setDateRange((prev) => ({ ...prev, endDate: e.target.value }))
+              }
+              className="border-none focus:ring-0 text-sm"
+            />
           </div>
-          <div className="flex items-center gap-4">
-            {/* 期間選択 */}
-            <div className="flex items-center gap-2 text-sm">
-              <Calendar className="w-4 h-4 text-gray-400" />
-              <input
-                type="date"
-                value={dateRange.startDate}
-                onChange={(e) =>
-                  setDateRange((prev) => ({ ...prev, startDate: e.target.value }))
-                }
-                className="border rounded px-2 py-1"
-              />
-              <span>〜</span>
-              <input
-                type="date"
-                value={dateRange.endDate}
-                onChange={(e) =>
-                  setDateRange((prev) => ({ ...prev, endDate: e.target.value }))
-                }
-                className="border rounded px-2 py-1"
-              />
-            </div>
-            <button
-              onClick={fetchData}
-              disabled={loading}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
-            >
-              <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
-              更新
-            </button>
-            <a
-              href="/"
-              className="text-sm text-blue-600 hover:underline"
-            >
-              ダッシュボードに戻る
-            </a>
-          </div>
+          <button
+            onClick={fetchData}
+            disabled={loading}
+            className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all disabled:opacity-50"
+          >
+            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+            更新
+          </button>
         </div>
-      </header>
-
+      }
+    >
       {/* タブナビゲーション */}
-      <div className="bg-white border-b">
-        <div className="px-6">
-          <nav className="flex gap-1">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
-                  activeTab === tab.id
-                    ? "border-blue-600 text-blue-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700"
-                }`}
-              >
-                <tab.icon className="w-4 h-4" />
-                {tab.label}
-              </button>
-            ))}
-          </nav>
+      <div className="mb-6 -mt-2">
+        <div className="inline-flex rounded-xl bg-slate-100 p-1">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg transition-all ${
+                activeTab === tab.id
+                  ? "bg-white text-slate-900 shadow-sm"
+                  : "text-slate-500 hover:text-slate-700"
+              }`}
+            >
+              <tab.icon className="w-4 h-4" />
+              {tab.label}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* コンテンツ */}
-      <main className="p-6">
-        {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
-            {error}
+      {error && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 flex items-center gap-3">
+          <div className="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+            <RefreshCw className="w-5 h-5 text-red-600" />
           </div>
-        )}
+          <div>
+            <p className="font-medium">エラーが発生しました</p>
+            <p className="text-sm text-red-600">{error}</p>
+          </div>
+        </div>
+      )}
 
-        {loading ? (
-          <div className="flex items-center justify-center h-64">
-            <RefreshCw className="w-8 h-8 animate-spin text-blue-600" />
+      {loading ? (
+        <div className="flex h-96 items-center justify-center">
+          <div className="text-center">
+            <div className="relative mx-auto h-16 w-16">
+              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 animate-ping opacity-20" />
+              <div className="relative flex h-full w-full items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-indigo-600">
+                <RefreshCw className="h-8 w-8 animate-spin text-white" />
+              </div>
+            </div>
+            <p className="mt-4 text-sm font-medium text-slate-500">データを読み込んでいます...</p>
           </div>
-        ) : (
-          <>
-            {/* ヒートマップタブ */}
-            {activeTab === "heatmap" && (
-              <div className="space-y-6">
+        </div>
+      ) : (
+        <>
+          {/* ヒートマップタブ */}
+          {activeTab === "heatmap" && (
+            <div className="space-y-6">
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                 <HeatmapChart
                   data={hourlyHeatmapData}
                   xLabels={hourLabels}
@@ -224,8 +225,10 @@ export function Analytics() {
                   valueLabel="件"
                   colorScale="blue"
                 />
+              </div>
 
-                {monthlyHeatmap && propertyLabels.length > 0 && (
+              {monthlyHeatmap && propertyLabels.length > 0 && (
+                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                   <HeatmapChart
                     data={monthlyHeatmapData}
                     xLabels={monthLabels}
@@ -234,59 +237,69 @@ export function Analytics() {
                     valueLabel="円"
                     colorScale="green"
                   />
-                )}
+                </div>
+              )}
 
-                {/* インサイト */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base">分析インサイト</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                      <div className="p-3 bg-blue-50 rounded-lg">
-                        <p className="font-medium text-blue-800">ピーク時間帯</p>
-                        <p className="text-blue-600">
-                          {kpiData?.demand?.peakHours
-                            ? `${kpiData.demand.peakHours.join("時, ")}時が最も予約が多い`
-                            : "データなし"}
-                        </p>
-                      </div>
-                      <div className="p-3 bg-green-50 rounded-lg">
-                        <p className="font-medium text-green-800">ピーク曜日</p>
-                        <p className="text-green-600">
-                          {kpiData?.demand?.peakDays
-                            ? `${kpiData.demand.peakDays.join("曜日, ")}曜日が人気`
-                            : "データなし"}
-                        </p>
-                      </div>
+              {/* インサイト */}
+              <Card className="rounded-2xl border-slate-200 shadow-sm">
+                <CardHeader>
+                  <CardTitle className="text-base">分析インサイト</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <div className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
+                      <p className="font-medium text-blue-800">ピーク時間帯</p>
+                      <p className="text-blue-600 mt-1">
+                        {kpiData?.demand?.peakHours
+                          ? `${kpiData.demand.peakHours.join("時, ")}時が最も予約が多い`
+                          : "データなし"}
+                      </p>
                     </div>
-                  </CardContent>
-                </Card>
-              </div>
-            )}
+                    <div className="p-4 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl border border-emerald-100">
+                      <p className="font-medium text-emerald-800">ピーク曜日</p>
+                      <p className="text-emerald-600 mt-1">
+                        {kpiData?.demand?.peakDays
+                          ? `${kpiData.demand.peakDays.join("曜日, ")}曜日が人気`
+                          : "データなし"}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
-            {/* 用途分析タブ */}
-            {activeTab === "usage" && usageData && (
+          {/* 用途分析タブ */}
+          {activeTab === "usage" && usageData && (
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
               <UsageAnalysis
                 data={usageData.data}
                 totalBookings={usageData.totalBookings}
                 totalAmount={usageData.totalAmount}
               />
-            )}
+            </div>
+          )}
 
-            {/* 人数分析タブ */}
-            {activeTab === "guest" && guestData && (
+          {/* 人数分析タブ */}
+          {activeTab === "guest" && guestData && (
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
               <GuestCountAnalysis
                 data={guestData.data}
                 avgGuestCount={guestData.avgGuestCount}
               />
-            )}
+            </div>
+          )}
 
-            {/* KPI指標タブ */}
-            {activeTab === "kpi" && kpiData && <KpiDashboard data={kpiData} />}
+          {/* KPI指標タブ */}
+          {activeTab === "kpi" && kpiData && (
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <KpiDashboard data={kpiData} />
+            </div>
+          )}
 
-            {/* リードタイムタブ */}
-            {activeTab === "leadtime" && leadTimeData && (
+          {/* リードタイムタブ */}
+          {activeTab === "leadtime" && leadTimeData && (
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
               <LeadTimeAnalysis
                 distribution={leadTimeData.distribution || []}
                 byPurpose={leadTimeData.byPurpose || []}
@@ -301,11 +314,11 @@ export function Analytics() {
                 }}
                 priceRecommendations={priceRecommendations?.recommendations || []}
               />
-            )}
-          </>
-        )}
-      </main>
-    </div>
+            </div>
+          )}
+        </>
+      )}
+    </PageLayout>
   );
 }
 

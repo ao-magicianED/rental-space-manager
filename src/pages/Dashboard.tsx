@@ -6,10 +6,8 @@ import {
   DollarSign,
   CalendarCheck,
   RefreshCw,
-  Upload,
-  Settings,
-  BarChart3,
 } from "lucide-react";
+import { PageLayout } from "../components/layout/PageLayout";
 import { KpiCard } from "../components/KpiCard";
 import { SalesChart } from "../components/SalesChart";
 import { PropertySalesChart } from "../components/PropertySalesChart";
@@ -82,152 +80,140 @@ export function Dashboard() {
 
   if (error) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="text-center">
-          <p className="text-lg text-red-600">{error}</p>
-          <button
-            onClick={fetchData}
-            className="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-          >
-            再試行
-          </button>
+      <PageLayout>
+        <div className="flex h-96 items-center justify-center">
+          <div className="text-center">
+            <div className="mx-auto h-16 w-16 rounded-full bg-red-100 flex items-center justify-center mb-4">
+              <Building2 className="h-8 w-8 text-red-600" />
+            </div>
+            <p className="text-lg font-medium text-slate-900">{error}</p>
+            <button
+              onClick={fetchData}
+              className="mt-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-2.5 text-sm font-medium text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all"
+            >
+              再試行
+            </button>
+          </div>
         </div>
-      </div>
+      </PageLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* ヘッダー */}
-      <header className="border-b bg-white">
-        <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                レンタルスペース売上管理
-              </h1>
-              <p className="mt-1 text-sm text-gray-500">
-                ダッシュボード
-              </p>
+    <PageLayout
+      title="ダッシュボード"
+      description="売上・予約の概要"
+      actions={
+        <div className="flex items-center gap-3">
+          <DateRangePicker
+            startDate={startDate}
+            endDate={endDate}
+            onChange={handleDateChange}
+          />
+          <button
+            onClick={fetchData}
+            disabled={loading}
+            className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all disabled:opacity-50"
+          >
+            <RefreshCw
+              className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
+            />
+            更新
+          </button>
+        </div>
+      }
+    >
+      {loading && !summary ? (
+        <div className="flex h-96 items-center justify-center">
+          <div className="text-center">
+            <div className="relative mx-auto h-16 w-16">
+              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 animate-ping opacity-20" />
+              <div className="relative flex h-full w-full items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-indigo-600">
+                <RefreshCw className="h-8 w-8 animate-spin text-white" />
+              </div>
             </div>
-            <div className="flex items-center gap-4">
-              <DateRangePicker
-                startDate={startDate}
-                endDate={endDate}
-                onChange={handleDateChange}
-              />
-              <a
-                href="#import"
-                className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-              >
-                <Upload className="h-4 w-4" />
-                CSVインポート
-              </a>
-              <a
-                href="#analytics"
-                className="flex items-center gap-2 rounded-lg border border-blue-600 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100"
-              >
-                <BarChart3 className="h-4 w-4" />
-                分析
-              </a>
-              <a
-                href="#settings"
-                className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-              >
-                <Settings className="h-4 w-4" />
-                設定
-              </a>
-              <button
-                onClick={fetchData}
-                disabled={loading}
-                className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-              >
-                <RefreshCw
-                  className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
-                />
-                更新
-              </button>
-            </div>
+            <p className="mt-4 text-sm font-medium text-slate-500">データを読み込んでいます...</p>
           </div>
         </div>
-      </header>
-
-      {/* メインコンテンツ */}
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        {loading && !summary ? (
-          <div className="flex h-64 items-center justify-center">
-            <RefreshCw className="h-8 w-8 animate-spin text-blue-600" />
+      ) : (
+        <>
+          {/* KPIカード */}
+          <div className="mb-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <KpiCard
+              title="売上（税込）"
+              value={`¥${(summary?.totalGross || 0).toLocaleString()}`}
+              icon={<DollarSign className="h-6 w-6" />}
+              variant="blue"
+            />
+            <KpiCard
+              title="予約件数"
+              value={summary?.bookingCount || 0}
+              subtitle="件"
+              icon={<CalendarCheck className="h-6 w-6" />}
+              variant="green"
+            />
+            <KpiCard
+              title="稼働率"
+              value={`${calculateOccupancyRate()}%`}
+              icon={<TrendingUp className="h-6 w-6" />}
+              variant="purple"
+            />
+            <KpiCard
+              title="粗利"
+              value={`¥${(summary?.grossProfit || 0).toLocaleString()}`}
+              valueColor={
+                (summary?.grossProfit || 0) >= 0 ? "success" : "danger"
+              }
+              icon={<Building2 className="h-6 w-6" />}
+              variant="orange"
+            />
           </div>
-        ) : (
-          <>
-            {/* KPIカード */}
-            <div className="mb-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              <KpiCard
-                title="売上（税込）"
-                value={`¥${(summary?.totalGross || 0).toLocaleString()}`}
-                icon={<DollarSign className="h-6 w-6" />}
-              />
-              <KpiCard
-                title="予約件数"
-                value={summary?.bookingCount || 0}
-                subtitle="件"
-                icon={<CalendarCheck className="h-6 w-6" />}
-              />
-              <KpiCard
-                title="稼働率"
-                value={`${calculateOccupancyRate()}%`}
-                icon={<TrendingUp className="h-6 w-6" />}
-              />
-              <KpiCard
-                title="粗利"
-                value={`¥${(summary?.grossProfit || 0).toLocaleString()}`}
-                valueColor={
-                  (summary?.grossProfit || 0) >= 0 ? "success" : "danger"
-                }
-                icon={<Building2 className="h-6 w-6" />}
-              />
-            </div>
 
-            {/* グラフエリア */}
-            <div className="mb-8 grid gap-6 lg:grid-cols-2">
+          {/* グラフエリア */}
+          <div className="mb-8 grid gap-6 lg:grid-cols-2">
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
               <SalesChart data={dailySales} />
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
               <PlatformPieChart
                 salesData={summary?.salesByPlatform || []}
                 platforms={platforms}
               />
             </div>
+          </div>
 
-            {/* 店舗別売上 */}
-            <div className="mb-8">
-              <PropertySalesChart
-                salesData={summary?.salesByProperty || []}
-                properties={properties}
-              />
-            </div>
+          {/* 店舗別売上 */}
+          <div className="mb-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <PropertySalesChart
+              salesData={summary?.salesByProperty || []}
+              properties={properties}
+            />
+          </div>
 
-            {/* データなしの場合 */}
-            {summary?.bookingCount === 0 && (
-              <div className="rounded-lg border border-dashed border-gray-300 bg-white p-12 text-center">
-                <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-4 text-lg font-medium text-gray-900">
-                  データがありません
-                </h3>
-                <p className="mt-2 text-sm text-gray-500">
-                  CSVファイルをインポートして、売上データを追加してください。
-                </p>
-                <a
-                  href="#import"
-                  className="mt-4 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-2 text-sm font-medium text-white hover:bg-blue-700"
-                >
-                  <Upload className="h-4 w-4" />
-                  CSVインポート
-                </a>
+          {/* データなしの場合 */}
+          {summary?.bookingCount === 0 && (
+            <div className="rounded-2xl border-2 border-dashed border-slate-300 bg-gradient-to-br from-slate-50 to-white p-12 text-center">
+              <div className="mx-auto h-16 w-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
+                <Building2 className="h-8 w-8 text-white" />
               </div>
-            )}
-          </>
-        )}
-      </main>
-    </div>
+              <h3 className="mt-6 text-lg font-semibold text-slate-900">
+                データがありません
+              </h3>
+              <p className="mt-2 text-sm text-slate-500">
+                CSVファイルをインポートして、売上データを追加してください。
+              </p>
+              <a
+                href="#import"
+                className="mt-6 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3 text-sm font-medium text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all"
+              >
+                <Building2 className="h-4 w-4" />
+                CSVインポート
+              </a>
+            </div>
+          )}
+        </>
+      )}
+    </PageLayout>
   );
 }
 
