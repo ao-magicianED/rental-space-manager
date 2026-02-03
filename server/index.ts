@@ -13,6 +13,7 @@ import {
   propertyProspects,
 } from "./db/schema";
 import { extractMaisokuData, calculatePricePerUnit } from "./services/ocr-service";
+import { runSimulation, getPerformanceSummary } from "./services/simulation-engine";
 import { eq, sql, and, gte, lte, desc } from "drizzle-orm";
 import { getParser } from "./parsers";
 import type { ParsedBooking } from "./parsers";
@@ -1325,6 +1326,101 @@ app.post("/api/property-prospects/ocr", async (req, res) => {
   } catch (error) {
     console.error("Error in OCR:", error);
     res.status(500).json({ error: "OCR processing failed", details: String(error) });
+  }
+});
+
+// ========================================
+// シミュレーションAPI
+// ========================================
+
+// 売上シミュレーション実行
+app.post("/api/simulation/run", async (req, res) => {
+  try {
+    const { areaTsubo, areaSqm, rent, nearestStation, walkMinutes, capacity } = req.body;
+
+    if (!rent || rent <= 0) {
+      return res.status(400).json({ error: "rent is required and must be positive" });
+    }
+
+    const result = await runSimulation({
+      areaTsubo,
+      areaSqm,
+      rent,
+      nearestStation,
+      walkMinutes,
+      capacity,
+    });
+
+    res.json(result);
+  } catch (error) {
+    console.error("Error running simulation:", error);
+    res.status(500).json({ error: "Simulation failed", details: String(error) });
+  }
+});
+
+// 既存施設の実績サマリー
+app.get("/api/simulation/performance", async (_req, res) => {
+  try {
+    const summary = await getPerformanceSummary();
+    res.json(summary);
+  } catch (error) {
+    console.error("Error fetching performance summary:", error);
+    res.status(500).json({ error: "Failed to fetch performance summary" });
+  }
+});
+
+// 物件候補にシミュレーション結果を適用
+app.post("/api/property-prospects/:id/simulate", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // 物件候補を取得
+    const prospects = await db
+      .select()
+      .from(propertyProspects)
+      .where(eq(propertyProspects.id, parseInt(id)))
+      .limit(1);
+
+    if (prospects.length === 0) {
+      return res.status(404).json({ error: "Property prospect not found" });
+    }
+
+    const prospect = prospects[0];
+
+    if (!prospect.rent || prospect.rent <= 0) {
+      return res.status(400).json({ error: "Property must have a valid rent" });
+    }
+
+    // シミュレーション実行
+    const result = await runSimulation({
+      areaTsubo: prospect.areaTsubo,
+      areaSqm: prospect.areaSqm,
+      rent: prospect.rent,
+      nearestStation: prospect.nearestStation,
+      walkMinutes: prospect.walkMinutes,
+      capacity: null,
+    });
+
+    // 結果を物件候補に保存
+    const updated = await db
+      .update(propertyProspects)
+      .set({
+        estimatedRevenue: result.scenarios.realistic.monthlyRevenue,
+        estimatedOccupancy: result.scenarios.realistic.occupancyRate,
+        estimatedROI: result.scenarios.realistic.roi,
+        breakEvenMonths: result.breakEvenMonths,
+        updatedAt: new Date().toISOString(),
+      })
+      .where(eq(propertyProspects.id, parseInt(id)))
+      .returning();
+
+    res.json({
+      prospect: updated[0],
+      simulation: result,
+    });
+  } catch (error) {
+    console.error("Error simulating property prospect:", error);
+    res.status(500).json({ error: "Simulation failed", details: String(error) });
   }
 });
 

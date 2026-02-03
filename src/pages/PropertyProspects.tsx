@@ -14,8 +14,10 @@ import {
   Check,
   Eye,
   Calculator,
+  LineChart,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import { SimulationPanel } from "../components/property/SimulationPanel";
 
 const API_BASE = "http://localhost:5001";
 
@@ -67,6 +69,8 @@ export function PropertyProspects() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showSimulationModal, setShowSimulationModal] = useState(false);
+  const [simulatingProspect, setSimulatingProspect] = useState<PropertyProspect | null>(null);
   const [editingProspect, setEditingProspect] = useState<Partial<PropertyProspect> | null>(null);
   const [ocrLoading, setOcrLoading] = useState(false);
   const [ocrResult, setOcrResult] = useState<any>(null);
@@ -324,19 +328,25 @@ export function PropertyProspects() {
                     <td className="px-4 py-3 text-right">{formatCurrency(p.pricePerSqm)}</td>
                     <td className="px-4 py-3 text-right">
                       {p.estimatedRevenue ? (
-                        <span className="text-green-600 font-medium">
+                        <button
+                          className="text-green-600 font-medium hover:underline"
+                          onClick={() => {
+                            setSimulatingProspect(p);
+                            setShowSimulationModal(true);
+                          }}
+                        >
                           {formatCurrency(p.estimatedRevenue)}
-                        </span>
+                        </button>
                       ) : (
                         <button
                           className="text-xs text-blue-600 hover:underline flex items-center gap-1"
                           onClick={() => {
-                            setEditingProspect(p);
-                            setShowEditModal(true);
+                            setSimulatingProspect(p);
+                            setShowSimulationModal(true);
                           }}
                         >
-                          <Calculator className="w-3 h-3" />
-                          計算
+                          <LineChart className="w-3 h-3" />
+                          シミュレーション
                         </button>
                       )}
                     </td>
@@ -906,6 +916,44 @@ export function PropertyProspects() {
                   保存
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* シミュレーションモーダル */}
+      {showSimulationModal && simulatingProspect && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <div className="p-4 border-b flex items-center justify-between sticky top-0 bg-white z-10">
+              <div>
+                <h2 className="text-lg font-bold flex items-center gap-2">
+                  <LineChart className="w-5 h-5 text-purple-600" />
+                  売上シミュレーション
+                </h2>
+                <p className="text-sm text-gray-500">{simulatingProspect.name}</p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowSimulationModal(false);
+                  setSimulatingProspect(null);
+                }}
+                className="p-1 hover:bg-gray-100 rounded"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-4">
+              <SimulationPanel
+                prospectId={simulatingProspect.id}
+                initialRent={simulatingProspect.rent || 0}
+                initialAreaTsubo={simulatingProspect.areaTsubo || undefined}
+                initialStation={simulatingProspect.nearestStation || undefined}
+                initialWalkMinutes={simulatingProspect.walkMinutes || undefined}
+                onSimulationComplete={() => {
+                  fetchProspects();
+                }}
+              />
             </div>
           </div>
         </div>
