@@ -64,11 +64,11 @@ export function DateRangePicker({
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+        className="flex items-center gap-1.5 sm:gap-2 rounded-lg border border-gray-300 bg-white px-2.5 sm:px-4 py-2 text-xs sm:text-sm font-medium text-gray-700 hover:bg-gray-50"
       >
         <Calendar className="h-4 w-4" />
         <span>{formatDisplayDate()}</span>
-        <ChevronDown className="h-4 w-4" />
+        <ChevronDown className="h-3 w-3 sm:h-4 sm:w-4" />
       </button>
 
       {isOpen && (
@@ -77,7 +77,7 @@ export function DateRangePicker({
             className="fixed inset-0 z-10"
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute right-0 z-20 mt-2 w-64 rounded-lg border border-gray-200 bg-white p-4 shadow-lg">
+          <div className="absolute right-0 z-20 mt-2 w-56 sm:w-64 rounded-lg border border-gray-200 bg-white p-3 sm:p-4 shadow-lg">
             <div className="space-y-2">
               {presets.map((preset) => (
                 <button
