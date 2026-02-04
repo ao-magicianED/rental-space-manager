@@ -188,6 +188,20 @@ export const api = {
       searchParams.set("platformId", params.platformId.toString());
     return fetchApi<Booking[]>(`/bookings?${searchParams.toString()}`);
   },
+  createBooking: (data: Partial<Booking>) =>
+    fetchApi<Booking>("/bookings", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  updateBooking: (id: number, data: Partial<Booking>) =>
+    fetchApi<Booking>(`/bookings/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+  deleteBooking: (id: number) =>
+    fetchApi<{ success: boolean }>(`/bookings/${id}`, {
+      method: "DELETE",
+    }),
 
   // ダッシュボード
   getDashboardSummary: (params?: { startDate?: string; endDate?: string }) => {

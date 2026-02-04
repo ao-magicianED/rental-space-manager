@@ -2,9 +2,9 @@ import { useState, useEffect } from "react";
 import {
   LayoutDashboard,
   BarChart3,
-  Upload,
   Settings,
   Building2,
+  CalendarCheck,
 } from "lucide-react";
 
 interface NavItem {
@@ -22,6 +22,12 @@ const navItems: NavItem[] = [
     hash: "",
   },
   {
+    id: "bookings",
+    label: "予約",
+    icon: <CalendarCheck className="h-5 w-5" />,
+    hash: "bookings",
+  },
+  {
     id: "analytics",
     label: "分析",
     icon: <BarChart3 className="h-5 w-5" />,
@@ -32,12 +38,6 @@ const navItems: NavItem[] = [
     label: "物件",
     icon: <Building2 className="h-5 w-5" />,
     hash: "properties",
-  },
-  {
-    id: "import",
-    label: "取込",
-    icon: <Upload className="h-5 w-5" />,
-    hash: "import",
   },
   {
     id: "settings",

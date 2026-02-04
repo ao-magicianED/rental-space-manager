@@ -5,6 +5,7 @@ import {
   Upload,
   Settings,
   Building2,
+  CalendarCheck,
   ChevronRight,
   Menu,
   X,
@@ -25,6 +26,13 @@ const navItems: NavItem[] = [
     icon: <LayoutDashboard className="h-5 w-5" />,
     hash: "",
     description: "売上・予約の概要",
+  },
+  {
+    id: "bookings",
+    label: "予約管理",
+    icon: <CalendarCheck className="h-5 w-5" />,
+    hash: "bookings",
+    description: "予約の追加・編集・削除",
   },
   {
     id: "analytics",

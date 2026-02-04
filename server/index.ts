@@ -170,6 +170,54 @@ app.post("/api/bookings/bulk", async (req, res) => {
   }
 });
 
+// 単体予約作成
+app.post("/api/bookings", async (req, res) => {
+  try {
+    const result = await db.insert(bookings).values(req.body).returning();
+    res.json(result[0]);
+  } catch (error) {
+    console.error("Error creating booking:", error);
+    res.status(500).json({ error: "Failed to create booking" });
+  }
+});
+
+// 予約更新
+app.put("/api/bookings/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await db
+      .update(bookings)
+      .set({ ...req.body, updatedAt: new Date().toISOString() })
+      .where(eq(bookings.id, parseInt(id)))
+      .returning();
+    if (result.length === 0) {
+      return res.status(404).json({ error: "Booking not found" });
+    }
+    res.json(result[0]);
+  } catch (error) {
+    console.error("Error updating booking:", error);
+    res.status(500).json({ error: "Failed to update booking" });
+  }
+});
+
+// 予約削除
+app.delete("/api/bookings/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await db
+      .delete(bookings)
+      .where(eq(bookings.id, parseInt(id)))
+      .returning();
+    if (result.length === 0) {
+      return res.status(404).json({ error: "Booking not found" });
+    }
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting booking:", error);
+    res.status(500).json({ error: "Failed to delete booking" });
+  }
+});
+
 // ========================================
 // 経費API
 // ========================================
