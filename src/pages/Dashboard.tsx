@@ -6,6 +6,7 @@ import {
   DollarSign,
   CalendarCheck,
   RefreshCw,
+  FileDown,
 } from "lucide-react";
 import { PageLayout } from "../components/layout/PageLayout";
 import { KpiCard } from "../components/KpiCard";
@@ -13,8 +14,11 @@ import { SalesChart } from "../components/SalesChart";
 import { PropertySalesChart } from "../components/PropertySalesChart";
 import { PlatformPieChart } from "../components/PlatformPieChart";
 import { DateRangePicker } from "../components/DateRangePicker";
+import { ReportDialog, type ReportType, type ExportFormat } from "../components/reports/ReportDialog";
 import { api } from "../lib/api";
 import type { Platform, Property, DashboardSummary, DailySales } from "../lib/api";
+import { exportSalesSummaryToExcel, exportBookingsToExcel } from "../lib/excel-generator";
+import { exportDashboardToPdf } from "../lib/pdf-generator";
 
 export function Dashboard() {
   const today = new Date();
@@ -31,6 +35,8 @@ export function Dashboard() {
   const [dailySales, setDailySales] = useState<DailySales[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [reportDialogOpen, setReportDialogOpen] = useState(false);
+  const [exportLoading, setExportLoading] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
@@ -78,6 +84,50 @@ export function Dashboard() {
       : 0;
   };
 
+  // レポート出力処理
+  const handleExportReport = async (
+    reportType: ReportType,
+    format: ExportFormat,
+    dateRange: { startDate: string; endDate: string }
+  ) => {
+    setExportLoading(true);
+    try {
+      if (format === "pdf") {
+        // PDFはダッシュボード全体をキャプチャ
+        await exportDashboardToPdf("dashboard-content", {
+          filename: `ダッシュボード_${dateRange.startDate}_${dateRange.endDate}.pdf`,
+        });
+      } else {
+        // Excel
+        if (reportType === "sales-summary" || reportType === "property-performance") {
+          const [summaryData, salesData] = await Promise.all([
+            api.getDashboardSummary({ startDate: dateRange.startDate, endDate: dateRange.endDate }),
+            api.getDailySales({ startDate: dateRange.startDate, endDate: dateRange.endDate }),
+          ]);
+          await exportSalesSummaryToExcel(
+            summaryData,
+            salesData,
+            properties,
+            platforms,
+            dateRange
+          );
+        } else if (reportType === "bookings") {
+          const bookings = await api.getBookings({
+            startDate: dateRange.startDate,
+            endDate: dateRange.endDate,
+          });
+          await exportBookingsToExcel(bookings, properties, platforms, dateRange);
+        }
+      }
+      setReportDialogOpen(false);
+    } catch (e) {
+      console.error("Export error:", e);
+      alert("レポートの出力に失敗しました");
+    } finally {
+      setExportLoading(false);
+    }
+  };
+
   if (error) {
     return (
       <PageLayout>
@@ -111,6 +161,13 @@ export function Dashboard() {
             onChange={handleDateChange}
           />
           <button
+            onClick={() => setReportDialogOpen(true)}
+            className="flex items-center gap-2 rounded-xl bg-white border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-all"
+          >
+            <FileDown className="h-4 w-4" />
+            レポート出力
+          </button>
+          <button
             onClick={fetchData}
             disabled={loading}
             className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all disabled:opacity-50"
@@ -136,7 +193,7 @@ export function Dashboard() {
           </div>
         </div>
       ) : (
-        <>
+        <div id="dashboard-content">
           {/* KPIカード */}
           <div className="mb-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             <KpiCard
@@ -211,8 +268,16 @@ export function Dashboard() {
               </a>
             </div>
           )}
-        </>
+        </div>
       )}
+
+      {/* レポート出力ダイアログ */}
+      <ReportDialog
+        isOpen={reportDialogOpen}
+        onClose={() => setReportDialogOpen(false)}
+        onExport={handleExportReport}
+        loading={exportLoading}
+      />
     </PageLayout>
   );
 }
