@@ -1433,6 +1433,352 @@ app.post("/api/property-prospects/:id/simulate", async (req, res) => {
 });
 
 // ========================================
+// 比較分析API（前年同月比など）
+// ========================================
+
+// 前年同月比較データ
+app.get("/api/analytics/comparison/year-over-year", async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+
+    if (!startDate || !endDate) {
+      return res.status(400).json({ error: "startDate and endDate are required" });
+    }
+
+    // 現在期間の売上データ
+    const currentPeriod = await db
+      .select({
+        totalGross: sql<number>`COALESCE(SUM(${bookings.grossAmount}), 0)`,
+        totalNet: sql<number>`COALESCE(SUM(${bookings.netAmount}), 0)`,
+        bookingCount: sql<number>`COUNT(*)`,
+        avgAmount: sql<number>`COALESCE(AVG(${bookings.grossAmount}), 0)`,
+        totalDuration: sql<number>`COALESCE(SUM(${bookings.durationMinutes}), 0)`,
+      })
+      .from(bookings)
+      .where(
+        and(
+          gte(bookings.usageDate, startDate as string),
+          lte(bookings.usageDate, endDate as string),
+          eq(bookings.status, "confirmed")
+        )
+      );
+
+    // 前年同期間を計算
+    const currentStart = new Date(startDate as string);
+    const currentEnd = new Date(endDate as string);
+    const previousStart = new Date(currentStart);
+    const previousEnd = new Date(currentEnd);
+    previousStart.setFullYear(previousStart.getFullYear() - 1);
+    previousEnd.setFullYear(previousEnd.getFullYear() - 1);
+
+    const previousStartStr = previousStart.toISOString().split("T")[0];
+    const previousEndStr = previousEnd.toISOString().split("T")[0];
+
+    // 前年同期間の売上データ
+    const previousPeriod = await db
+      .select({
+        totalGross: sql<number>`COALESCE(SUM(${bookings.grossAmount}), 0)`,
+        totalNet: sql<number>`COALESCE(SUM(${bookings.netAmount}), 0)`,
+        bookingCount: sql<number>`COUNT(*)`,
+        avgAmount: sql<number>`COALESCE(AVG(${bookings.grossAmount}), 0)`,
+        totalDuration: sql<number>`COALESCE(SUM(${bookings.durationMinutes}), 0)`,
+      })
+      .from(bookings)
+      .where(
+        and(
+          gte(bookings.usageDate, previousStartStr),
+          lte(bookings.usageDate, previousEndStr),
+          eq(bookings.status, "confirmed")
+        )
+      );
+
+    // 月別推移データ（現在年と前年）
+    const currentYear = currentStart.getFullYear();
+    const previousYear = currentYear - 1;
+
+    const monthlyTrends = await db
+      .select({
+        year: sql<number>`CAST(strftime('%Y', ${bookings.usageDate}) AS INTEGER)`,
+        month: sql<number>`CAST(strftime('%m', ${bookings.usageDate}) AS INTEGER)`,
+        totalGross: sql<number>`COALESCE(SUM(${bookings.grossAmount}), 0)`,
+        bookingCount: sql<number>`COUNT(*)`,
+      })
+      .from(bookings)
+      .where(
+        and(
+          eq(bookings.status, "confirmed"),
+          sql`CAST(strftime('%Y', ${bookings.usageDate}) AS INTEGER) IN (${currentYear}, ${previousYear})`
+        )
+      )
+      .groupBy(
+        sql`strftime('%Y', ${bookings.usageDate})`,
+        sql`strftime('%m', ${bookings.usageDate})`
+      )
+      .orderBy(
+        sql`strftime('%Y', ${bookings.usageDate})`,
+        sql`strftime('%m', ${bookings.usageDate})`
+      );
+
+    // 物件別比較
+    const propertyComparison = await db
+      .select({
+        propertyId: bookings.propertyId,
+        year: sql<number>`CAST(strftime('%Y', ${bookings.usageDate}) AS INTEGER)`,
+        totalGross: sql<number>`COALESCE(SUM(${bookings.grossAmount}), 0)`,
+        bookingCount: sql<number>`COUNT(*)`,
+      })
+      .from(bookings)
+      .where(
+        and(
+          eq(bookings.status, "confirmed"),
+          sql`CAST(strftime('%Y', ${bookings.usageDate}) AS INTEGER) IN (${currentYear}, ${previousYear})`
+        )
+      )
+      .groupBy(
+        bookings.propertyId,
+        sql`strftime('%Y', ${bookings.usageDate})`
+      );
+
+    // 計算
+    const currentData = currentPeriod[0] || { totalGross: 0, totalNet: 0, bookingCount: 0, avgAmount: 0, totalDuration: 0 };
+    const previousData = previousPeriod[0] || { totalGross: 0, totalNet: 0, bookingCount: 0, avgAmount: 0, totalDuration: 0 };
+
+    const revenueChange = previousData.totalGross > 0
+      ? ((currentData.totalGross - previousData.totalGross) / previousData.totalGross) * 100
+      : currentData.totalGross > 0 ? 100 : 0;
+
+    const bookingChange = previousData.bookingCount > 0
+      ? ((currentData.bookingCount - previousData.bookingCount) / previousData.bookingCount) * 100
+      : currentData.bookingCount > 0 ? 100 : 0;
+
+    const avgAmountChange = previousData.avgAmount > 0
+      ? ((currentData.avgAmount - previousData.avgAmount) / previousData.avgAmount) * 100
+      : currentData.avgAmount > 0 ? 100 : 0;
+
+    res.json({
+      current: {
+        period: { start: startDate, end: endDate },
+        ...currentData,
+      },
+      previous: {
+        period: { start: previousStartStr, end: previousEndStr },
+        ...previousData,
+      },
+      changes: {
+        revenue: revenueChange,
+        bookings: bookingChange,
+        avgAmount: avgAmountChange,
+        revenueAbsolute: currentData.totalGross - previousData.totalGross,
+        bookingsAbsolute: currentData.bookingCount - previousData.bookingCount,
+      },
+      monthlyTrends,
+      propertyComparison,
+    });
+  } catch (error) {
+    console.error("Error fetching year-over-year comparison:", error);
+    res.status(500).json({ error: "Failed to fetch comparison data" });
+  }
+});
+
+// 前月比較データ
+app.get("/api/analytics/comparison/month-over-month", async (req, res) => {
+  try {
+    const { year, month } = req.query;
+
+    const targetYear = parseInt(year as string) || new Date().getFullYear();
+    const targetMonth = parseInt(month as string) || new Date().getMonth() + 1;
+
+    // 当月の期間
+    const currentStart = new Date(targetYear, targetMonth - 1, 1);
+    const currentEnd = new Date(targetYear, targetMonth, 0);
+
+    // 前月の期間
+    const previousStart = new Date(targetYear, targetMonth - 2, 1);
+    const previousEnd = new Date(targetYear, targetMonth - 1, 0);
+
+    const formatDate = (d: Date) => d.toISOString().split("T")[0];
+
+    // 当月データ
+    const currentPeriod = await db
+      .select({
+        totalGross: sql<number>`COALESCE(SUM(${bookings.grossAmount}), 0)`,
+        bookingCount: sql<number>`COUNT(*)`,
+        avgAmount: sql<number>`COALESCE(AVG(${bookings.grossAmount}), 0)`,
+      })
+      .from(bookings)
+      .where(
+        and(
+          gte(bookings.usageDate, formatDate(currentStart)),
+          lte(bookings.usageDate, formatDate(currentEnd)),
+          eq(bookings.status, "confirmed")
+        )
+      );
+
+    // 前月データ
+    const previousPeriod = await db
+      .select({
+        totalGross: sql<number>`COALESCE(SUM(${bookings.grossAmount}), 0)`,
+        bookingCount: sql<number>`COUNT(*)`,
+        avgAmount: sql<number>`COALESCE(AVG(${bookings.grossAmount}), 0)`,
+      })
+      .from(bookings)
+      .where(
+        and(
+          gte(bookings.usageDate, formatDate(previousStart)),
+          lte(bookings.usageDate, formatDate(previousEnd)),
+          eq(bookings.status, "confirmed")
+        )
+      );
+
+    // 日別データ（当月）
+    const dailyData = await db
+      .select({
+        date: bookings.usageDate,
+        totalGross: sql<number>`COALESCE(SUM(${bookings.grossAmount}), 0)`,
+        bookingCount: sql<number>`COUNT(*)`,
+      })
+      .from(bookings)
+      .where(
+        and(
+          gte(bookings.usageDate, formatDate(currentStart)),
+          lte(bookings.usageDate, formatDate(currentEnd)),
+          eq(bookings.status, "confirmed")
+        )
+      )
+      .groupBy(bookings.usageDate)
+      .orderBy(bookings.usageDate);
+
+    const currentData = currentPeriod[0] || { totalGross: 0, bookingCount: 0, avgAmount: 0 };
+    const previousData = previousPeriod[0] || { totalGross: 0, bookingCount: 0, avgAmount: 0 };
+
+    const revenueChange = previousData.totalGross > 0
+      ? ((currentData.totalGross - previousData.totalGross) / previousData.totalGross) * 100
+      : currentData.totalGross > 0 ? 100 : 0;
+
+    const bookingChange = previousData.bookingCount > 0
+      ? ((currentData.bookingCount - previousData.bookingCount) / previousData.bookingCount) * 100
+      : currentData.bookingCount > 0 ? 100 : 0;
+
+    res.json({
+      current: {
+        year: targetYear,
+        month: targetMonth,
+        period: { start: formatDate(currentStart), end: formatDate(currentEnd) },
+        ...currentData,
+      },
+      previous: {
+        year: previousStart.getFullYear(),
+        month: previousStart.getMonth() + 1,
+        period: { start: formatDate(previousStart), end: formatDate(previousEnd) },
+        ...previousData,
+      },
+      changes: {
+        revenue: revenueChange,
+        bookings: bookingChange,
+        revenueAbsolute: currentData.totalGross - previousData.totalGross,
+        bookingsAbsolute: currentData.bookingCount - previousData.bookingCount,
+      },
+      dailyData,
+    });
+  } catch (error) {
+    console.error("Error fetching month-over-month comparison:", error);
+    res.status(500).json({ error: "Failed to fetch comparison data" });
+  }
+});
+
+// 月次推移データ（過去12ヶ月）
+app.get("/api/analytics/monthly-trends", async (req, res) => {
+  try {
+    const { months } = req.query;
+    const monthCount = parseInt(months as string) || 12;
+
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setMonth(startDate.getMonth() - monthCount + 1);
+    startDate.setDate(1);
+
+    const result = await db
+      .select({
+        yearMonth: sql<string>`strftime('%Y-%m', ${bookings.usageDate})`,
+        year: sql<number>`CAST(strftime('%Y', ${bookings.usageDate}) AS INTEGER)`,
+        month: sql<number>`CAST(strftime('%m', ${bookings.usageDate}) AS INTEGER)`,
+        totalGross: sql<number>`COALESCE(SUM(${bookings.grossAmount}), 0)`,
+        totalNet: sql<number>`COALESCE(SUM(${bookings.netAmount}), 0)`,
+        bookingCount: sql<number>`COUNT(*)`,
+        avgAmount: sql<number>`COALESCE(AVG(${bookings.grossAmount}), 0)`,
+      })
+      .from(bookings)
+      .where(
+        and(
+          gte(bookings.usageDate, startDate.toISOString().split("T")[0]),
+          eq(bookings.status, "confirmed")
+        )
+      )
+      .groupBy(sql`strftime('%Y-%m', ${bookings.usageDate})`)
+      .orderBy(sql`strftime('%Y-%m', ${bookings.usageDate})`);
+
+    // 前年同月のデータも取得
+    const previousYearStart = new Date(startDate);
+    previousYearStart.setFullYear(previousYearStart.getFullYear() - 1);
+
+    const previousYearData = await db
+      .select({
+        yearMonth: sql<string>`strftime('%Y-%m', ${bookings.usageDate})`,
+        year: sql<number>`CAST(strftime('%Y', ${bookings.usageDate}) AS INTEGER)`,
+        month: sql<number>`CAST(strftime('%m', ${bookings.usageDate}) AS INTEGER)`,
+        totalGross: sql<number>`COALESCE(SUM(${bookings.grossAmount}), 0)`,
+        bookingCount: sql<number>`COUNT(*)`,
+      })
+      .from(bookings)
+      .where(
+        and(
+          gte(bookings.usageDate, previousYearStart.toISOString().split("T")[0]),
+          lte(bookings.usageDate, new Date(startDate.getTime() - 1).toISOString().split("T")[0]),
+          eq(bookings.status, "confirmed")
+        )
+      )
+      .groupBy(sql`strftime('%Y-%m', ${bookings.usageDate})`)
+      .orderBy(sql`strftime('%Y-%m', ${bookings.usageDate})`);
+
+    // 前年同月のマップを作成
+    const previousYearMap = new Map(
+      previousYearData.map(d => [d.month, d])
+    );
+
+    // 前年比を計算して追加
+    const trendsWithComparison = result.map(current => {
+      const previousYear = previousYearMap.get(current.month);
+      const yoyChange = previousYear && previousYear.totalGross > 0
+        ? ((current.totalGross - previousYear.totalGross) / previousYear.totalGross) * 100
+        : null;
+
+      return {
+        ...current,
+        previousYearGross: previousYear?.totalGross || null,
+        previousYearBookings: previousYear?.bookingCount || null,
+        yoyChange,
+      };
+    });
+
+    res.json({
+      data: trendsWithComparison,
+      summary: {
+        totalMonths: result.length,
+        avgMonthlyRevenue: result.length > 0
+          ? result.reduce((sum, r) => sum + r.totalGross, 0) / result.length
+          : 0,
+        avgMonthlyBookings: result.length > 0
+          ? result.reduce((sum, r) => sum + r.bookingCount, 0) / result.length
+          : 0,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching monthly trends:", error);
+    res.status(500).json({ error: "Failed to fetch monthly trends" });
+  }
+});
+
+// ========================================
 // 位置情報インテリジェンスAPI（Phase 4）
 // ========================================
 

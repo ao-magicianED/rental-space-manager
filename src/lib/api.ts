@@ -89,6 +89,58 @@ export interface DailySales {
   bookingCount: number;
 }
 
+// 比較分析
+export interface YearOverYearComparison {
+  current: {
+    period: { start: string; end: string };
+    totalGross: number;
+    totalNet: number;
+    bookingCount: number;
+    avgAmount: number;
+    totalDuration: number;
+  };
+  previous: {
+    period: { start: string; end: string };
+    totalGross: number;
+    totalNet: number;
+    bookingCount: number;
+    avgAmount: number;
+    totalDuration: number;
+  };
+  changes: {
+    revenue: number;
+    bookings: number;
+    avgAmount: number;
+    revenueAbsolute: number;
+    bookingsAbsolute: number;
+  };
+  monthlyTrends: Array<{
+    year: number;
+    month: number;
+    totalGross: number;
+    bookingCount: number;
+  }>;
+  propertyComparison: Array<{
+    propertyId: number;
+    year: number;
+    totalGross: number;
+    bookingCount: number;
+  }>;
+}
+
+export interface MonthlyTrend {
+  yearMonth: string;
+  year: number;
+  month: number;
+  totalGross: number;
+  totalNet: number;
+  bookingCount: number;
+  avgAmount: number;
+  previousYearGross: number | null;
+  previousYearBookings: number | null;
+  yoyChange: number | null;
+}
+
 // API関数
 export const api = {
   // プラットフォーム
@@ -153,6 +205,24 @@ export const api = {
     if (params?.endDate) searchParams.set("endDate", params.endDate);
     return fetchApi<DailySales[]>(
       `/dashboard/daily-sales?${searchParams.toString()}`
+    );
+  },
+
+  // 比較分析
+  getYearOverYearComparison: (params: { startDate: string; endDate: string }) => {
+    const searchParams = new URLSearchParams();
+    searchParams.set("startDate", params.startDate);
+    searchParams.set("endDate", params.endDate);
+    return fetchApi<YearOverYearComparison>(
+      `/analytics/comparison/year-over-year?${searchParams.toString()}`
+    );
+  },
+
+  getMonthlyTrends: (params?: { months?: number }) => {
+    const searchParams = new URLSearchParams();
+    if (params?.months) searchParams.set("months", params.months.toString());
+    return fetchApi<{ data: MonthlyTrend[]; summary: { totalMonths: number; avgMonthlyRevenue: number; avgMonthlyBookings: number } }>(
+      `/analytics/monthly-trends?${searchParams.toString()}`
     );
   },
 };

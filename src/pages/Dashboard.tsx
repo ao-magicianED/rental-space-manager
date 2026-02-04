@@ -7,6 +7,9 @@ import {
   CalendarCheck,
   RefreshCw,
   FileDown,
+  BarChart3,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { PageLayout } from "../components/layout/PageLayout";
 import { KpiCard } from "../components/KpiCard";
@@ -15,6 +18,7 @@ import { PropertySalesChart } from "../components/PropertySalesChart";
 import { PlatformPieChart } from "../components/PlatformPieChart";
 import { DateRangePicker } from "../components/DateRangePicker";
 import { ReportDialog, type ReportType, type ExportFormat } from "../components/reports/ReportDialog";
+import { YearOverYearComparison } from "../components/analytics/YearOverYearComparison";
 import { api } from "../lib/api";
 import type { Platform, Property, DashboardSummary, DailySales } from "../lib/api";
 import { exportSalesSummaryToExcel, exportBookingsToExcel } from "../lib/excel-generator";
@@ -37,6 +41,7 @@ export function Dashboard() {
   const [error, setError] = useState<string | null>(null);
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
   const [exportLoading, setExportLoading] = useState(false);
+  const [showComparison, setShowComparison] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
@@ -246,6 +251,39 @@ export function Dashboard() {
               salesData={summary?.salesByProperty || []}
               properties={properties}
             />
+          </div>
+
+          {/* 前年同月比較セクション */}
+          <div className="mb-8">
+            <button
+              onClick={() => setShowComparison(!showComparison)}
+              className="flex w-full items-center justify-between rounded-2xl border border-slate-200 bg-white px-6 py-4 text-left shadow-sm hover:bg-slate-50 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600">
+                  <BarChart3 className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-slate-900">前年同月比較</h3>
+                  <p className="text-sm text-slate-500">売上・予約件数を前年と比較</p>
+                </div>
+              </div>
+              {showComparison ? (
+                <ChevronUp className="h-5 w-5 text-slate-400" />
+              ) : (
+                <ChevronDown className="h-5 w-5 text-slate-400" />
+              )}
+            </button>
+
+            {showComparison && (
+              <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <YearOverYearComparison
+                  startDate={startDate}
+                  endDate={endDate}
+                  properties={properties}
+                />
+              </div>
+            )}
           </div>
 
           {/* データなしの場合 */}
