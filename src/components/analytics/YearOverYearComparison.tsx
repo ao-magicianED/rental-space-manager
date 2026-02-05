@@ -199,7 +199,7 @@ export function YearOverYearComparison({
       {/* 月別推移グラフ */}
       <div className="rounded-xl border border-slate-200 bg-white p-4">
         <h3 className="mb-4 text-sm font-semibold text-slate-700">月別売上推移（前年比較）</h3>
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer width="100%" height={300} minWidth={0} minHeight={0}>
           <LineChart data={monthlyChartData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
             <XAxis dataKey="month" tick={{ fontSize: 12 }} />
@@ -234,7 +234,7 @@ export function YearOverYearComparison({
       {propertyChartData.length > 0 && (
         <div className="rounded-xl border border-slate-200 bg-white p-4">
           <h3 className="mb-4 text-sm font-semibold text-slate-700">物件別売上比較</h3>
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={300} minWidth={0} minHeight={0}>
             <BarChart data={propertyChartData} layout="vertical">
               <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
               <XAxis

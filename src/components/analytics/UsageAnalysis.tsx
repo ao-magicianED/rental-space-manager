@@ -97,7 +97,7 @@ export function UsageAnalysis({ data, totalBookings, totalAmount }: UsageAnalysi
           </CardHeader>
           <CardContent>
             <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                 <BarChart
                   data={topUsages}
                   layout="vertical"
@@ -128,7 +128,7 @@ export function UsageAnalysis({ data, totalBookings, totalAmount }: UsageAnalysi
           </CardHeader>
           <CardContent>
             <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                 <PieChart>
                   <Pie
                     data={topUsages}

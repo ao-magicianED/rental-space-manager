@@ -160,7 +160,7 @@ export function LeadTimeAnalysis({
           </CardHeader>
           <CardContent>
             <div className="h-72">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                 <BarChart data={distributionData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="日数" tick={{ fontSize: 11 }} />
@@ -189,7 +189,7 @@ export function LeadTimeAnalysis({
           </CardHeader>
           <CardContent>
             <div className="h-72">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                 <LineChart data={distributionData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="日数" tick={{ fontSize: 11 }} />
@@ -220,7 +220,7 @@ export function LeadTimeAnalysis({
           </CardHeader>
           <CardContent>
             <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                 <BarChart data={dayOfWeekData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="曜日" />
@@ -240,7 +240,7 @@ export function LeadTimeAnalysis({
           </CardHeader>
           <CardContent>
             <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                 <BarChart
                   data={purposeData}
                   layout="vertical"

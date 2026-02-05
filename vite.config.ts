@@ -20,4 +20,25 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes("node_modules/recharts") || id.includes("node_modules/d3-")) {
+            return "recharts";
+          }
+          if (id.includes("node_modules/jspdf") || id.includes("node_modules/html2canvas")) {
+            return "pdf";
+          }
+          if (id.includes("node_modules/react-dom")) {
+            return "react-vendor";
+          }
+          if (id.includes("node_modules/@tanstack")) {
+            return "query";
+          }
+        },
+      },
+    },
+  },
 });

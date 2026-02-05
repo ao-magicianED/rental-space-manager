@@ -1,4 +1,3 @@
-import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import type { Booking, DashboardSummary, DailySales, Property, Platform } from "./api";
 
@@ -25,6 +24,7 @@ export async function exportSalesSummaryToExcel(
   dateRange: { startDate: string; endDate: string },
   options: ExportOptions = {}
 ): Promise<void> {
+  const ExcelJS = (await import("exceljs")).default;
   const workbook = new ExcelJS.Workbook();
   workbook.creator = "レンタルスペース管理システム";
   workbook.created = new Date();
@@ -162,6 +162,7 @@ export async function exportBookingsToExcel(
   dateRange: { startDate: string; endDate: string },
   options: ExportOptions = {}
 ): Promise<void> {
+  const ExcelJS = (await import("exceljs")).default;
   const workbook = new ExcelJS.Workbook();
   workbook.creator = "レンタルスペース管理システム";
   workbook.created = new Date();

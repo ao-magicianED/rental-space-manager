@@ -493,7 +493,7 @@ export function SimulationPanel({
               </CardHeader>
               <CardContent>
                 <div className="h-64">
-                  <ResponsiveContainer width="100%" height="100%">
+                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                     <BarChart data={scenarioData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="name" />
@@ -515,7 +515,7 @@ export function SimulationPanel({
               </CardHeader>
               <CardContent>
                 <div className="h-64">
-                  <ResponsiveContainer width="100%" height="100%">
+                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                     <LineChart data={monthlyData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="月" tick={{ fontSize: 11 }} />

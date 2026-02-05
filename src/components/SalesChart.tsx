@@ -43,7 +43,7 @@ export function SalesChart({ data, title = "売上推移" }: SalesChartProps) {
       </CardHeader>
       <CardContent>
         <div className="h-80">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
             <LineChart
               data={chartData}
               margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
