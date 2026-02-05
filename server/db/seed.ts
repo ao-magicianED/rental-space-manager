@@ -56,14 +56,6 @@ async function seed() {
     },
   ];
 
-  await db.delete(schema.platforms);
-  await db.insert(schema.platforms).values(platformData);
-  console.log("Platforms seeded:", platformData.length);
-
-  // プラットフォームIDを取得
-  const platforms = await db.select().from(schema.platforms);
-  const instabaseId = platforms.find((p) => p.code === "instabase")!.id;
-
   // ========================================
   // 2. 施設マスタ（5施設）
   // ========================================
@@ -115,11 +107,25 @@ async function seed() {
     },
   ];
 
+  // 外部キー制約に注意して、依存テーブルから順に削除
+  await db.delete(schema.importLogs);
+  await db.delete(schema.expenses);
+  await db.delete(schema.bookings);
   await db.delete(schema.platformMappings);
   await db.delete(schema.rooms);
-  await db.delete(schema.bookings);
   await db.delete(schema.properties);
+  await db.delete(schema.platforms);
 
+  // プラットフォーム投入
+  await db.insert(schema.platforms).values(platformData);
+  console.log("Platforms seeded:", platformData.length);
+
+  // プラットフォームIDを取得
+  const platforms = await db.select().from(schema.platforms);
+  const instabaseId = platforms.find((p) => p.code === "instabase")!.id;
+  const spacemarketId = platforms.find((p) => p.code === "spacemarket")!.id;
+
+  // 施設投入
   await db.insert(schema.properties).values(propertyData);
   console.log("Properties seeded:", propertyData.length);
 
@@ -208,7 +214,72 @@ async function seed() {
   ];
 
   await db.insert(schema.platformMappings).values(mappingData);
-  console.log("Platform mappings seeded:", mappingData.length);
+  console.log("Platform mappings (instabase) seeded:", mappingData.length);
+
+  // ========================================
+  // 5. スペースマーケットのマッピング
+  // ========================================
+  const spacemarketMappingData: schema.NewPlatformMapping[] = [
+    // 上野御徒町
+    {
+      propertyId: properties.find((p) => p.code === "P001")!.id,
+      roomId: null,
+      platformId: spacemarketId,
+      platformPropertyName: "ブルースペース上野御徒町",
+      isActive: true,
+    },
+    // 上野駅前 4A
+    {
+      propertyId: uenoEkimaeId,
+      roomId: room4AId,
+      platformId: spacemarketId,
+      platformPropertyName: "ブルースペース上野駅前4A",
+      isActive: true,
+    },
+    // 上野駅前 4B
+    {
+      propertyId: uenoEkimaeId,
+      roomId: room4BId,
+      platformId: spacemarketId,
+      platformPropertyName: "ブルースペース上野駅前4B",
+      isActive: true,
+    },
+    // 上野駅前 4A＆4B（フルワイド文字の場合もマッピング）
+    {
+      propertyId: uenoEkimaeId,
+      roomId: null,
+      platformId: spacemarketId,
+      platformPropertyName: "ブルースペース上野駅前4A＆4B",
+      isActive: true,
+    },
+    // 神田
+    {
+      propertyId: properties.find((p) => p.code === "P003")!.id,
+      roomId: null,
+      platformId: spacemarketId,
+      platformPropertyName: "ブルースペース神田",
+      isActive: true,
+    },
+    // 白金高輪
+    {
+      propertyId: properties.find((p) => p.code === "P004")!.id,
+      roomId: null,
+      platformId: spacemarketId,
+      platformPropertyName: "ブルースペース白金高輪",
+      isActive: true,
+    },
+    // 西新宿403
+    {
+      propertyId: properties.find((p) => p.code === "P005")!.id,
+      roomId: null,
+      platformId: spacemarketId,
+      platformPropertyName: "ブルースペース西新宿403",
+      isActive: true,
+    },
+  ];
+
+  await db.insert(schema.platformMappings).values(spacemarketMappingData);
+  console.log("Platform mappings (spacemarket) seeded:", spacemarketMappingData.length);
 
   console.log("\n=== Seed completed! ===");
   console.log("Platforms:", platformData.length);

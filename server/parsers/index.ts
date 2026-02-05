@@ -1,12 +1,13 @@
 import type { CsvParser } from "./base-parser";
 import { genericParser } from "./generic-parser";
 import { instabaseParser } from "./instabase-parser";
+import { spacemarketParser } from "./spacemarket-parser";
 
 // 各プラットフォームのパーサー
 export const parsers: Record<string, CsvParser> = {
   generic: genericParser,
   instabase: instabaseParser,
-  // spacemarket: spacemarketParser,  // 後で実装
+  spacemarket: spacemarketParser,
   // spacee: spaceeParser,            // 後で実装
   // upnow: upnowParser,              // 後で実装
   // yoyakuru: yoyakuruParser,        // 後で実装
@@ -24,3 +25,4 @@ export function getAllParsers(): CsvParser[] {
 export * from "./base-parser";
 export { genericParser };
 export { instabaseParser };
+export { spacemarketParser };
