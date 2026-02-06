@@ -201,24 +201,24 @@ export function Dashboard() {
       ) : (
         <div id="dashboard-content">
           {/* KPIカード */}
-          <div className="mb-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mb-6 sm:mb-8 grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
             <KpiCard
               title="売上（税込）"
               value={`¥${(summary?.totalGross || 0).toLocaleString()}`}
-              icon={<DollarSign className="h-6 w-6" />}
+              icon={<DollarSign className="h-5 w-5 sm:h-6 sm:w-6" />}
               variant="blue"
             />
             <KpiCard
               title="予約件数"
               value={summary?.bookingCount || 0}
               subtitle="件"
-              icon={<CalendarCheck className="h-6 w-6" />}
+              icon={<CalendarCheck className="h-5 w-5 sm:h-6 sm:w-6" />}
               variant="green"
             />
             <KpiCard
               title="稼働率"
               value={`${calculateOccupancyRate()}%`}
-              icon={<TrendingUp className="h-6 w-6" />}
+              icon={<TrendingUp className="h-5 w-5 sm:h-6 sm:w-6" />}
               variant="purple"
             />
             <KpiCard
@@ -227,17 +227,17 @@ export function Dashboard() {
               valueColor={
                 (summary?.grossProfit || 0) >= 0 ? "success" : "danger"
               }
-              icon={<Building2 className="h-6 w-6" />}
+              icon={<Building2 className="h-5 w-5 sm:h-6 sm:w-6" />}
               variant="orange"
             />
           </div>
 
           {/* グラフエリア */}
-          <div className="mb-8 grid gap-6 lg:grid-cols-2">
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="mb-6 sm:mb-8 grid gap-4 sm:gap-6 lg:grid-cols-2">
+            <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm overflow-x-auto">
               <SalesChart data={dailySales} />
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm">
               <PlatformPieChart
                 salesData={summary?.salesByPlatform || []}
                 platforms={platforms}

@@ -142,27 +142,27 @@ export function GlobalNav() {
           <div className="rounded-xl bg-gradient-to-r from-blue-600/20 to-indigo-600/20 p-4">
             <p className="text-xs font-medium text-blue-300">Blue Space</p>
             <p className="mt-1 text-xs text-slate-400">
-              5施設 · 6部屋を管理中
+              レンタルスペース管理ダッシュボード
             </p>
           </div>
         </div>
       </nav>
 
       {/* モバイルヘッダー */}
-      <div className="sticky top-0 z-40 flex items-center gap-x-6 bg-gradient-to-r from-slate-900 to-slate-800 px-4 py-4 shadow-lg sm:px-6 lg:hidden">
+      <div className="sticky top-0 z-40 flex items-center gap-x-4 bg-gradient-to-r from-slate-900 to-slate-800 px-4 py-3 shadow-lg sm:px-6 lg:hidden">
         <button
           type="button"
-          className="-m-2.5 p-2.5 text-slate-300"
+          className="flex h-11 w-11 items-center justify-center rounded-xl text-slate-300 hover:bg-slate-700/50 active:bg-slate-700 transition-colors"
           onClick={() => setIsMobileMenuOpen(true)}
         >
           <span className="sr-only">メニューを開く</span>
           <Menu className="h-6 w-6" />
         </button>
         <div className="flex-1 flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/20">
             <Building2 className="h-5 w-5 text-white" />
           </div>
-          <span className="text-sm font-semibold text-white">スペース管理</span>
+          <span className="text-base font-semibold text-white">スペース管理</span>
         </div>
       </div>
 
@@ -186,7 +186,7 @@ export function GlobalNav() {
               </div>
               <button
                 type="button"
-                className="-m-2.5 p-2.5 text-slate-300"
+                className="flex h-11 w-11 items-center justify-center rounded-xl text-slate-300 hover:bg-slate-700/50 active:bg-slate-700 transition-colors"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 <X className="h-6 w-6" />
@@ -194,26 +194,31 @@ export function GlobalNav() {
             </div>
 
             <nav className="mt-6 px-3">
-              <ul className="space-y-1">
+              <ul className="space-y-2">
                 {navItems.map((item) => (
                   <li key={item.id}>
                     <a
                       href={`#${item.hash}`}
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all ${
+                      className={`flex items-center gap-3 rounded-xl px-4 py-4 text-base font-medium transition-all active:scale-98 ${
                         isActive(item.hash)
-                          ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white"
-                          : "text-slate-300 hover:bg-slate-700/50"
+                          ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25"
+                          : "text-slate-300 hover:bg-slate-700/50 active:bg-slate-700"
                       }`}
                     >
                       <span
-                        className={`flex h-9 w-9 items-center justify-center rounded-lg ${
+                        className={`flex h-10 w-10 items-center justify-center rounded-xl ${
                           isActive(item.hash) ? "bg-white/20" : "bg-slate-700/50"
                         }`}
                       >
                         {item.icon}
                       </span>
-                      <span>{item.label}</span>
+                      <div>
+                        <span>{item.label}</span>
+                        <p className={`text-xs mt-0.5 ${isActive(item.hash) ? "text-blue-100" : "text-slate-500"}`}>
+                          {item.description}
+                        </p>
+                      </div>
                     </a>
                   </li>
                 ))}

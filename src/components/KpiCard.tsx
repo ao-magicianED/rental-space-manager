@@ -78,38 +78,38 @@ export function KpiCard({
 
   return (
     <div
-      className={`relative overflow-hidden rounded-2xl border ${styles.border} ${styles.bg} p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-0.5`}
+      className={`relative overflow-hidden rounded-2xl border ${styles.border} ${styles.bg} p-4 sm:p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-0.5`}
     >
       {/* 背景の装飾 */}
       <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-white/40 blur-2xl" />
 
-      <div className="relative flex items-start justify-between">
-        <div className="flex-1">
-          <p className="text-sm font-medium text-slate-500">{title}</p>
-          <p className={`mt-2 text-3xl font-bold tracking-tight ${colorClasses[valueColor]}`}>
+      <div className="relative flex items-start justify-between gap-3">
+        <div className="flex-1 min-w-0">
+          <p className="text-xs sm:text-sm font-medium text-slate-500 truncate">{title}</p>
+          <p className={`mt-1 sm:mt-2 text-xl sm:text-3xl font-bold tracking-tight ${colorClasses[valueColor]}`}>
             {typeof value === "number" ? value.toLocaleString() : value}
           </p>
           {subtitle && (
-            <p className="mt-1 text-sm text-slate-500">{subtitle}</p>
+            <p className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-slate-500 truncate">{subtitle}</p>
           )}
         </div>
         {icon && (
-          <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${styles.iconBg} ${styles.iconColor} shadow-lg`}>
+          <div className={`flex-shrink-0 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl ${styles.iconBg} ${styles.iconColor} shadow-lg`}>
             {icon}
           </div>
         )}
       </div>
 
       {trend !== undefined && (
-        <div className="mt-4 flex items-center gap-2 pt-4 border-t border-slate-200/50">
-          <div className="flex items-center gap-1 rounded-full bg-white/60 px-2.5 py-1">
+        <div className="mt-3 sm:mt-4 flex items-center gap-2 pt-3 sm:pt-4 border-t border-slate-200/50">
+          <div className="flex items-center gap-1 rounded-full bg-white/60 px-2 sm:px-2.5 py-0.5 sm:py-1">
             {getTrendIcon()}
-            <span className={`text-sm font-semibold ${getTrendColor()}`}>
+            <span className={`text-xs sm:text-sm font-semibold ${getTrendColor()}`}>
               {trend > 0 ? "+" : ""}
               {trend.toFixed(1)}%
             </span>
           </div>
-          <span className="text-xs text-slate-500">前月比</span>
+          <span className="text-[10px] sm:text-xs text-slate-500">前月比</span>
         </div>
       )}
     </div>
