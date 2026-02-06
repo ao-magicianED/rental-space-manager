@@ -238,7 +238,7 @@ export function SimulationPanel({
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
             <div>
-              <label className="text-sm text-gray-500">賃料（円/月）*</label>
+              <label className="text-sm text-slate-500">賃料（円/月）*</label>
               <input
                 type="number"
                 value={rent || ""}
@@ -248,7 +248,7 @@ export function SimulationPanel({
               />
             </div>
             <div>
-              <label className="text-sm text-gray-500">面積（坪）</label>
+              <label className="text-sm text-slate-500">面積（坪）</label>
               <input
                 type="number"
                 step="0.1"
@@ -259,7 +259,7 @@ export function SimulationPanel({
               />
             </div>
             <div>
-              <label className="text-sm text-gray-500">最寄駅</label>
+              <label className="text-sm text-slate-500">最寄駅</label>
               <input
                 type="text"
                 value={station}
@@ -269,7 +269,7 @@ export function SimulationPanel({
               />
             </div>
             <div>
-              <label className="text-sm text-gray-500">徒歩（分）</label>
+              <label className="text-sm text-slate-500">徒歩（分）</label>
               <input
                 type="number"
                 value={walkMinutes || ""}
@@ -337,7 +337,7 @@ export function SimulationPanel({
               {/* 立地スコアゲージ */}
               <div className="flex flex-col items-center justify-center p-4 bg-white rounded-lg border">
                 <LocationScoreGauge score={locationAnalysis.locationScore} size="lg" />
-                <p className="text-xs text-gray-500 mt-2">
+                <p className="text-xs text-slate-500 mt-2">
                   補正係数: {locationAnalysis.locationMultiplier.toFixed(2)}x
                 </p>
               </div>
@@ -350,7 +350,7 @@ export function SimulationPanel({
                 </div>
                 <p className="text-lg font-bold">{locationAnalysis.stationInfo.name}</p>
                 {locationAnalysis.stationInfo.line && (
-                  <p className="text-xs text-gray-500">{locationAnalysis.stationInfo.line}</p>
+                  <p className="text-xs text-slate-500">{locationAnalysis.stationInfo.line}</p>
                 )}
                 {locationAnalysis.stationInfo.rank && (
                   <p className="text-xs text-purple-600 mt-1">
@@ -370,10 +370,10 @@ export function SimulationPanel({
                     <p className="text-lg font-bold">
                       {(locationAnalysis.stationInfo.passengers / 10000).toFixed(1)}万人
                     </p>
-                    <p className="text-xs text-gray-500">/ 日</p>
+                    <p className="text-xs text-slate-500">/ 日</p>
                   </>
                 ) : (
-                  <p className="text-gray-400">データなし</p>
+                  <p className="text-slate-400">データなし</p>
                 )}
               </div>
 
@@ -386,7 +386,7 @@ export function SimulationPanel({
                 <p className="text-lg font-bold">
                   {locationAnalysis.nearbyCompanies.toLocaleString()}社
                 </p>
-                <p className="text-xs text-gray-500">推定値</p>
+                <p className="text-xs text-slate-500">推定値</p>
               </div>
             </div>
 
@@ -396,7 +396,7 @@ export function SimulationPanel({
                 <p className="text-xs font-medium text-purple-700 mb-2">立地分析コメント</p>
                 <ul className="space-y-1">
                   {locationAnalysis.insights.map((insight, i) => (
-                    <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
+                    <li key={i} className="text-sm text-slate-700 flex items-start gap-2">
                       <span className="text-purple-500">•</span>
                       {insight}
                     </li>
@@ -540,14 +540,14 @@ export function SimulationPanel({
             <Card>
               <CardHeader>
                 <CardTitle className="text-base flex items-center gap-2">
-                  <Building2 className="w-5 h-5 text-gray-600" />
+                  <Building2 className="w-5 h-5 text-slate-600" />
                   類似物件の実績
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-slate-50">
                       <tr>
                         <th className="px-3 py-2 text-left">施設名</th>
                         <th className="px-3 py-2 text-right">類似度</th>
@@ -559,7 +559,7 @@ export function SimulationPanel({
                     </thead>
                     <tbody className="divide-y">
                       {result.similarProperties.map((sp) => (
-                        <tr key={sp.id} className="hover:bg-gray-50">
+                        <tr key={sp.id} className="hover:bg-slate-50">
                           <td className="px-3 py-2 font-medium">{sp.name}</td>
                           <td className="px-3 py-2 text-right">
                             <span
@@ -568,7 +568,7 @@ export function SimulationPanel({
                                   ? "bg-green-100 text-green-700"
                                   : sp.similarity >= 0.5
                                   ? "bg-yellow-100 text-yellow-700"
-                                  : "bg-gray-100 text-gray-700"
+                                  : "bg-slate-100 text-slate-700"
                               }`}
                             >
                               {Math.round(sp.similarity * 100)}%

@@ -69,7 +69,7 @@ export function GuestCountAnalysis({ data, avgGuestCount }: GuestCountAnalysisPr
             <div className="flex items-center gap-2">
               <Users className="w-5 h-5 text-blue-500" />
               <div>
-                <p className="text-sm text-gray-500">平均利用人数</p>
+                <p className="text-sm text-slate-500">平均利用人数</p>
                 <p className="text-2xl font-bold">{avgGuestCount.toFixed(1)}人</p>
               </div>
             </div>
@@ -77,25 +77,25 @@ export function GuestCountAnalysis({ data, avgGuestCount }: GuestCountAnalysisPr
         </Card>
         <Card>
           <CardContent className="p-4">
-            <p className="text-sm text-gray-500">最多人数帯</p>
+            <p className="text-sm text-slate-500">最多人数帯</p>
             <p className="text-2xl font-bold text-green-600">{mostPopular?.guestRange || "—"}</p>
-            <p className="text-xs text-gray-400">{mostPopular?.bookingCount || 0}件</p>
+            <p className="text-xs text-slate-400">{mostPopular?.bookingCount || 0}件</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
-            <p className="text-sm text-gray-500">最高売上人数帯</p>
+            <p className="text-sm text-slate-500">最高売上人数帯</p>
             <p className="text-2xl font-bold text-orange-600">
               {highestRevenue?.guestRange || "—"}
             </p>
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-slate-400">
               {formatCurrency(highestRevenue?.totalAmount || 0)}
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
-            <p className="text-sm text-gray-500">1人あたり平均単価</p>
+            <p className="text-sm text-slate-500">1人あたり平均単価</p>
             <p className="text-2xl font-bold">
               {formatCurrency(
                 avgGuestCount > 0 ? totalAmount / (totalBookings * avgGuestCount) : 0
@@ -186,7 +186,7 @@ export function GuestCountAnalysis({ data, avgGuestCount }: GuestCountAnalysisPr
               </thead>
               <tbody>
                 {chartData.map((item, i) => (
-                  <tr key={i} className="border-b hover:bg-gray-50">
+                  <tr key={i} className="border-b hover:bg-slate-50">
                     <td className="py-2 px-3 flex items-center gap-2">
                       <div
                         className="w-3 h-3 rounded-full"

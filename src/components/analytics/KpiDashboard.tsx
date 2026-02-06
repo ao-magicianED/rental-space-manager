@@ -68,10 +68,10 @@ function KpiCard({
       <CardContent className="p-4">
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-sm text-gray-500">{title}</p>
+            <p className="text-sm text-slate-500">{title}</p>
             <p className="text-2xl font-bold mt-1">{value}</p>
             {subValue && (
-              <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+              <p className="text-xs text-slate-400 mt-1 flex items-center gap-1">
                 {trend === "up" && <TrendingUp className="w-3 h-3 text-green-500" />}
                 {trend === "down" && <TrendingDown className="w-3 h-3 text-red-500" />}
                 {subValue}
@@ -217,32 +217,32 @@ export function KpiDashboard({ data }: KpiDashboardProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-500">
+              <CardTitle className="text-sm font-medium text-slate-500">
                 ピーク・オフピーク
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-500">ピーク曜日:</span>
+                  <span className="text-slate-500">ピーク曜日:</span>
                   <span className="font-medium text-green-600">
                     {data.demand.peakDays.join(", ") || "—"}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">オフピーク曜日:</span>
+                  <span className="text-slate-500">オフピーク曜日:</span>
                   <span className="font-medium text-red-500">
                     {data.demand.offPeakDays.join(", ") || "—"}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">ピーク時間帯:</span>
+                  <span className="text-slate-500">ピーク時間帯:</span>
                   <span className="font-medium text-green-600">
                     {formatHours(data.demand.peakHours) || "—"}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">平日/休日比:</span>
+                  <span className="text-slate-500">平日/休日比:</span>
                   <span className="font-medium">
                     {data.demand.weekdayWeekendRatio.toFixed(2)}
                   </span>
@@ -253,7 +253,7 @@ export function KpiDashboard({ data }: KpiDashboardProps) {
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-500">
+              <CardTitle className="text-sm font-medium text-slate-500">
                 月別売上トップ3
               </CardTitle>
             </CardHeader>
@@ -264,7 +264,7 @@ export function KpiDashboard({ data }: KpiDashboardProps) {
                   .slice(0, 3)
                   .map((m, i) => (
                     <div key={m.month} className="flex justify-between items-center">
-                      <span className="text-gray-500">{m.month}月:</span>
+                      <span className="text-slate-500">{m.month}月:</span>
                       <div className="flex items-center gap-2">
                         <span className="font-medium">
                           {formatCurrency(m.total)}

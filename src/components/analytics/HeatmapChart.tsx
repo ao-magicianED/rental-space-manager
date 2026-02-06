@@ -76,7 +76,7 @@ export function HeatmapChart({
             {xLabels.map((label) => (
               <div
                 key={label}
-                className="text-center text-xs text-gray-500 font-medium"
+                className="text-center text-xs text-slate-500 font-medium"
                 style={{ width: cellWidth, height: headerHeight }}
               >
                 {label}
@@ -89,7 +89,7 @@ export function HeatmapChart({
             <div key={yLabel} className="flex items-center">
               {/* Y軸ラベル */}
               <div
-                className="text-right text-xs text-gray-500 font-medium pr-2"
+                className="text-right text-xs text-slate-500 font-medium pr-2"
                 style={{ width: labelWidth }}
               >
                 {yLabel}
@@ -100,7 +100,7 @@ export function HeatmapChart({
                 return (
                   <div
                     key={`${yLabel}-${xLabel}`}
-                    className="border border-gray-100 flex items-center justify-center text-xs cursor-pointer hover:ring-2 hover:ring-blue-400 transition-all"
+                    className="border border-slate-100 flex items-center justify-center text-xs cursor-pointer hover:ring-2 hover:ring-blue-400 transition-all"
                     style={{
                       width: cellWidth,
                       height: cellHeight,
@@ -119,7 +119,7 @@ export function HeatmapChart({
       </div>
 
       {/* 凡例 */}
-      <div className="mt-4 flex items-center justify-end gap-2 text-xs text-gray-500">
+      <div className="mt-4 flex items-center justify-end gap-2 text-xs text-slate-500">
         <span>少ない</span>
         <div className="flex">
           {colorScales[colorScale].map((color, i) => (

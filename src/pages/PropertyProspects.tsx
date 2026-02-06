@@ -60,7 +60,7 @@ interface PropertyProspect {
 type StatusFilter = "all" | "draft" | "evaluating" | "approved" | "rejected";
 
 const statusLabels: Record<string, { label: string; color: string }> = {
-  draft: { label: "下書き", color: "bg-gray-100 text-gray-700" },
+  draft: { label: "下書き", color: "bg-slate-100 text-slate-700" },
   evaluating: { label: "評価中", color: "bg-yellow-100 text-yellow-700" },
   approved: { label: "承認", color: "bg-green-100 text-green-700" },
   rejected: { label: "却下", color: "bg-red-100 text-red-700" },
@@ -313,197 +313,336 @@ export function PropertyProspects() {
         ) : prospects.length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center">
-              <Building2 className="w-12 h-12 mx-auto text-gray-300 mb-4" />
-              <p className="text-gray-500">物件候補がありません</p>
-              <p className="text-sm text-gray-400 mt-1">
+              <Building2 className="w-12 h-12 mx-auto text-slate-300 mb-4" />
+              <p className="text-slate-500">物件候補がありません</p>
+              <p className="text-sm text-slate-400 mt-1">
                 「マイソク解析」または「手動追加」で物件を登録してください
               </p>
             </CardContent>
           </Card>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full bg-white rounded-lg shadow text-sm">
-              <thead className="bg-gray-50 border-b">
-                <tr>
-                  <th className="px-4 py-3 text-left font-medium text-gray-600">物件名</th>
-                  <th className="px-4 py-3 text-left font-medium text-gray-600">最寄駅</th>
-                  <th className="px-4 py-3 text-center font-medium text-gray-600">
-                    <div className="flex items-center justify-center gap-1">
-                      <Target className="w-3 h-3" />
-                      立地
-                    </div>
-                  </th>
-                  <th className="px-4 py-3 text-right font-medium text-gray-600">
-                    <div className="flex items-center justify-end gap-1">
-                      <Users className="w-3 h-3" />
-                      乗降客数
-                    </div>
-                  </th>
-                  <th className="px-4 py-3 text-right font-medium text-gray-600">面積</th>
-                  <th className="px-4 py-3 text-right font-medium text-gray-600">賃料</th>
-                  <th className="px-4 py-3 text-right font-medium text-gray-600">坪単価</th>
-                  <th className="px-4 py-3 text-right font-medium text-gray-600">予測売上</th>
-                  <th className="px-4 py-3 text-right font-medium text-gray-600">予測ROI</th>
-                  <th className="px-4 py-3 text-center font-medium text-gray-600">ステータス</th>
-                  <th className="px-4 py-3 text-center font-medium text-gray-600">操作</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                {prospects.map((p) => (
-                  <tr key={p.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3">
-                      <div className="font-medium">{p.name}</div>
-                      {p.address && (
-                        <div className="text-xs text-gray-400 flex items-center gap-1">
-                          <MapPin className="w-3 h-3" />
-                          {p.address}
-                        </div>
-                      )}
-                    </td>
-                    <td className="px-4 py-3">
-                      {p.nearestStation ? (
-                        <div className="flex items-center gap-1">
-                          <Train className="w-3 h-3 text-gray-400" />
-                          <span>{p.nearestStation}</span>
-                          {p.walkMinutes && (
-                            <span className="text-xs text-gray-400">徒歩{p.walkMinutes}分</span>
-                          )}
-                        </div>
-                      ) : (
-                        "-"
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-center">
-                      {p.locationScore !== null ? (
-                        <LocationScoreBadge score={p.locationScore} />
-                      ) : (
-                        <span className="text-xs text-gray-400">-</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      {p.stationPassengers !== null ? (
-                        <span className="text-sm">
-                          {(p.stationPassengers / 10000).toFixed(1)}万人/日
-                        </span>
-                      ) : (
-                        <span className="text-xs text-gray-400">-</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      {p.areaTsubo ? `${p.areaTsubo}坪` : p.areaSqm ? `${p.areaSqm}㎡` : "-"}
-                    </td>
-                    <td className="px-4 py-3 text-right">{formatCurrency(p.rent)}</td>
-                    <td className="px-4 py-3 text-right font-medium text-blue-600">
-                      {formatCurrency(p.pricePerTsubo)}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      {p.estimatedRevenue ? (
-                        <button
-                          className="text-green-600 font-medium hover:underline"
-                          onClick={() => {
-                            setSimulatingProspect(p);
-                            setShowSimulationModal(true);
-                          }}
-                        >
-                          {formatCurrency(p.estimatedRevenue)}
-                        </button>
-                      ) : (
-                        <button
-                          className="text-xs text-blue-600 hover:underline flex items-center gap-1"
-                          onClick={() => {
-                            setSimulatingProspect(p);
-                            setShowSimulationModal(true);
-                          }}
-                        >
-                          <LineChart className="w-3 h-3" />
-                          シミュレーション
-                        </button>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      {p.estimatedROI ? (
+          <>
+            {/* デスクトップテーブル */}
+            <div className="hidden xl:block overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
+              <table className="w-full text-sm">
+                <thead className="bg-slate-50 border-b border-slate-200">
+                  <tr>
+                    <th className="px-4 py-3 text-left font-semibold text-slate-600">物件名</th>
+                    <th className="px-4 py-3 text-left font-semibold text-slate-600">最寄駅</th>
+                    <th className="px-4 py-3 text-center font-semibold text-slate-600">
+                      <div className="flex items-center justify-center gap-1">
+                        <Target className="w-3 h-3" />
+                        立地
+                      </div>
+                    </th>
+                    <th className="px-4 py-3 text-right font-semibold text-slate-600">
+                      <div className="flex items-center justify-end gap-1">
+                        <Users className="w-3 h-3" />
+                        乗降客数
+                      </div>
+                    </th>
+                    <th className="px-4 py-3 text-right font-semibold text-slate-600">面積</th>
+                    <th className="px-4 py-3 text-right font-semibold text-slate-600">賃料</th>
+                    <th className="px-4 py-3 text-right font-semibold text-slate-600">坪単価</th>
+                    <th className="px-4 py-3 text-right font-semibold text-slate-600">予測売上</th>
+                    <th className="px-4 py-3 text-right font-semibold text-slate-600">予測ROI</th>
+                    <th className="px-4 py-3 text-center font-semibold text-slate-600">ステータス</th>
+                    <th className="px-4 py-3 text-center font-semibold text-slate-600">操作</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {prospects.map((p) => (
+                    <tr key={p.id} className="hover:bg-slate-50 transition-colors">
+                      <td className="px-4 py-3">
+                        <div className="font-medium text-slate-900">{p.name}</div>
+                        {p.address && (
+                          <div className="text-xs text-slate-400 flex items-center gap-1">
+                            <MapPin className="w-3 h-3" />
+                            {p.address}
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        {p.nearestStation ? (
+                          <div className="flex items-center gap-1">
+                            <Train className="w-3 h-3 text-slate-400" />
+                            <span>{p.nearestStation}</span>
+                            {p.walkMinutes && (
+                              <span className="text-xs text-slate-400">徒歩{p.walkMinutes}分</span>
+                            )}
+                          </div>
+                        ) : (
+                          "-"
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        {p.locationScore !== null ? (
+                          <LocationScoreBadge score={p.locationScore} />
+                        ) : (
+                          <span className="text-xs text-slate-400">-</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        {p.stationPassengers !== null ? (
+                          <span className="text-sm">
+                            {(p.stationPassengers / 10000).toFixed(1)}万人/日
+                          </span>
+                        ) : (
+                          <span className="text-xs text-slate-400">-</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        {p.areaTsubo ? `${p.areaTsubo}坪` : p.areaSqm ? `${p.areaSqm}㎡` : "-"}
+                      </td>
+                      <td className="px-4 py-3 text-right">{formatCurrency(p.rent)}</td>
+                      <td className="px-4 py-3 text-right font-medium text-blue-600">
+                        {formatCurrency(p.pricePerTsubo)}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        {p.estimatedRevenue ? (
+                          <button
+                            className="text-green-600 font-medium hover:underline"
+                            onClick={() => {
+                              setSimulatingProspect(p);
+                              setShowSimulationModal(true);
+                            }}
+                          >
+                            {formatCurrency(p.estimatedRevenue)}
+                          </button>
+                        ) : (
+                          <button
+                            className="text-xs text-blue-600 hover:underline flex items-center gap-1 ml-auto"
+                            onClick={() => {
+                              setSimulatingProspect(p);
+                              setShowSimulationModal(true);
+                            }}
+                          >
+                            <LineChart className="w-3 h-3" />
+                            シミュレーション
+                          </button>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        {p.estimatedROI ? (
+                          <span
+                            className={`font-medium ${
+                              p.estimatedROI >= 1 ? "text-green-600" : "text-orange-600"
+                            }`}
+                          >
+                            {p.estimatedROI.toFixed(1)}倍
+                          </span>
+                        ) : (
+                          "-"
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-center">
                         <span
-                          className={`font-medium ${
-                            p.estimatedROI >= 1 ? "text-green-600" : "text-orange-600"
+                          className={`inline-block px-2 py-1 rounded-full text-xs ${
+                            statusLabels[p.status]?.color || "bg-slate-100"
                           }`}
                         >
-                          {p.estimatedROI.toFixed(1)}倍
+                          {statusLabels[p.status]?.label || p.status}
                         </span>
-                      ) : (
-                        "-"
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center justify-center gap-1">
+                          <button
+                            onClick={() => {
+                              setEditingProspect(p);
+                              setShowEditModal(true);
+                            }}
+                            className="p-1.5 hover:bg-slate-100 rounded transition-colors"
+                            title="編集"
+                          >
+                            <Edit3 className="w-4 h-4 text-slate-500" />
+                          </button>
+                          {p.nearestStation && !p.locationScore && (
+                            <button
+                              onClick={() => handleCalculateLocationScore(p.id)}
+                              className="p-1.5 hover:bg-purple-100 rounded transition-colors"
+                              title="立地スコア計算"
+                            >
+                              <Target className="w-4 h-4 text-purple-600" />
+                            </button>
+                          )}
+                          {p.status === "draft" && (
+                            <button
+                              onClick={() => handleStatusChange(p.id, "evaluating")}
+                              className="p-1.5 hover:bg-yellow-100 rounded transition-colors"
+                              title="評価開始"
+                            >
+                              <Eye className="w-4 h-4 text-yellow-600" />
+                            </button>
+                          )}
+                          {p.status === "evaluating" && (
+                            <>
+                              <button
+                                onClick={() => handleStatusChange(p.id, "approved")}
+                                className="p-1.5 hover:bg-green-100 rounded transition-colors"
+                                title="承認"
+                              >
+                                <Check className="w-4 h-4 text-green-600" />
+                              </button>
+                              <button
+                                onClick={() => handleStatusChange(p.id, "rejected")}
+                                className="p-1.5 hover:bg-red-100 rounded transition-colors"
+                                title="却下"
+                              >
+                                <X className="w-4 h-4 text-red-600" />
+                              </button>
+                            </>
+                          )}
+                          <button
+                            onClick={() => handleDelete(p.id)}
+                            className="p-1.5 hover:bg-red-100 rounded transition-colors"
+                            title="削除"
+                          >
+                            <Trash2 className="w-4 h-4 text-red-500" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* モバイル・タブレットカードビュー */}
+            <div className="xl:hidden space-y-3">
+              {prospects.map((p) => (
+                <div key={p.id} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                  {/* ヘッダー：物件名とステータス */}
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-slate-900 truncate">{p.name}</h3>
+                      {p.address && (
+                        <div className="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
+                          <MapPin className="w-3 h-3 flex-shrink-0" />
+                          <span className="truncate">{p.address}</span>
+                        </div>
                       )}
-                    </td>
-                    <td className="px-4 py-3 text-center">
-                      <span
-                        className={`inline-block px-2 py-1 rounded-full text-xs ${
-                          statusLabels[p.status]?.color || "bg-gray-100"
-                        }`}
-                      >
-                        {statusLabels[p.status]?.label || p.status}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center justify-center gap-1">
-                        <button
-                          onClick={() => {
-                            setEditingProspect(p);
-                            setShowEditModal(true);
-                          }}
-                          className="p-1.5 hover:bg-gray-100 rounded"
-                          title="編集"
-                        >
-                          <Edit3 className="w-4 h-4 text-gray-500" />
-                        </button>
-                        {p.nearestStation && !p.locationScore && (
-                          <button
-                            onClick={() => handleCalculateLocationScore(p.id)}
-                            className="p-1.5 hover:bg-purple-100 rounded"
-                            title="立地スコア計算"
-                          >
-                            <Target className="w-4 h-4 text-purple-600" />
-                          </button>
+                    </div>
+                    <span
+                      className={`flex-shrink-0 ml-2 px-2 py-1 rounded-full text-xs ${
+                        statusLabels[p.status]?.color || "bg-slate-100"
+                      }`}
+                    >
+                      {statusLabels[p.status]?.label || p.status}
+                    </span>
+                  </div>
+
+                  {/* 駅情報・立地スコア */}
+                  <div className="flex items-center gap-3 mb-3 text-sm">
+                    {p.nearestStation && (
+                      <div className="flex items-center gap-1 text-slate-600">
+                        <Train className="w-3 h-3 text-slate-400" />
+                        <span>{p.nearestStation}</span>
+                        {p.walkMinutes && (
+                          <span className="text-xs text-slate-400">徒歩{p.walkMinutes}分</span>
                         )}
-                        {p.status === "draft" && (
-                          <button
-                            onClick={() => handleStatusChange(p.id, "evaluating")}
-                            className="p-1.5 hover:bg-yellow-100 rounded"
-                            title="評価開始"
-                          >
-                            <Eye className="w-4 h-4 text-yellow-600" />
-                          </button>
-                        )}
-                        {p.status === "evaluating" && (
-                          <>
-                            <button
-                              onClick={() => handleStatusChange(p.id, "approved")}
-                              className="p-1.5 hover:bg-green-100 rounded"
-                              title="承認"
-                            >
-                              <Check className="w-4 h-4 text-green-600" />
-                            </button>
-                            <button
-                              onClick={() => handleStatusChange(p.id, "rejected")}
-                              className="p-1.5 hover:bg-red-100 rounded"
-                              title="却下"
-                            >
-                              <X className="w-4 h-4 text-red-600" />
-                            </button>
-                          </>
-                        )}
-                        <button
-                          onClick={() => handleDelete(p.id)}
-                          className="p-1.5 hover:bg-red-100 rounded"
-                          title="削除"
-                        >
-                          <Trash2 className="w-4 h-4 text-red-500" />
-                        </button>
                       </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                    )}
+                    {p.locationScore !== null && (
+                      <LocationScoreBadge score={p.locationScore} />
+                    )}
+                  </div>
+
+                  {/* メイン情報グリッド */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
+                    <div>
+                      <div className="text-xs text-slate-400">面積</div>
+                      <div className="font-medium text-slate-900">
+                        {p.areaTsubo ? `${p.areaTsubo}坪` : p.areaSqm ? `${p.areaSqm}㎡` : "-"}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-slate-400">賃料</div>
+                      <div className="font-medium text-slate-900">{formatCurrency(p.rent)}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-slate-400">坪単価</div>
+                      <div className="font-medium text-blue-600">{formatCurrency(p.pricePerTsubo)}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-slate-400">予測ROI</div>
+                      <div className={`font-medium ${p.estimatedROI && p.estimatedROI >= 1 ? "text-green-600" : "text-orange-600"}`}>
+                        {p.estimatedROI ? `${p.estimatedROI.toFixed(1)}倍` : "-"}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* シミュレーション・アクション */}
+                  <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+                    <button
+                      className="flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-700"
+                      onClick={() => {
+                        setSimulatingProspect(p);
+                        setShowSimulationModal(true);
+                      }}
+                    >
+                      <LineChart className="w-4 h-4" />
+                      {p.estimatedRevenue ? formatCurrency(p.estimatedRevenue) : "シミュレーション"}
+                    </button>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => {
+                          setEditingProspect(p);
+                          setShowEditModal(true);
+                        }}
+                        className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                        title="編集"
+                      >
+                        <Edit3 className="w-4 h-4 text-slate-500" />
+                      </button>
+                      {p.nearestStation && !p.locationScore && (
+                        <button
+                          onClick={() => handleCalculateLocationScore(p.id)}
+                          className="p-2 hover:bg-purple-100 rounded-lg transition-colors"
+                          title="立地スコア計算"
+                        >
+                          <Target className="w-4 h-4 text-purple-600" />
+                        </button>
+                      )}
+                      {p.status === "draft" && (
+                        <button
+                          onClick={() => handleStatusChange(p.id, "evaluating")}
+                          className="p-2 hover:bg-yellow-100 rounded-lg transition-colors"
+                          title="評価開始"
+                        >
+                          <Eye className="w-4 h-4 text-yellow-600" />
+                        </button>
+                      )}
+                      {p.status === "evaluating" && (
+                        <>
+                          <button
+                            onClick={() => handleStatusChange(p.id, "approved")}
+                            className="p-2 hover:bg-green-100 rounded-lg transition-colors"
+                            title="承認"
+                          >
+                            <Check className="w-4 h-4 text-green-600" />
+                          </button>
+                          <button
+                            onClick={() => handleStatusChange(p.id, "rejected")}
+                            className="p-2 hover:bg-red-100 rounded-lg transition-colors"
+                            title="却下"
+                          >
+                            <X className="w-4 h-4 text-red-600" />
+                          </button>
+                        </>
+                      )}
+                      <button
+                        onClick={() => handleDelete(p.id)}
+                        className="p-2 hover:bg-red-100 rounded-lg transition-colors"
+                        title="削除"
+                      >
+                        <Trash2 className="w-4 h-4 text-red-500" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
         )}
 
         {/* サマリーカード */}
@@ -514,7 +653,7 @@ export function PropertyProspects() {
                 <div className="flex items-center gap-2">
                   <Building2 className="w-5 h-5 text-blue-500" />
                   <div>
-                    <p className="text-sm text-gray-500">登録物件数</p>
+                    <p className="text-sm text-slate-500">登録物件数</p>
                     <p className="text-2xl font-bold">{prospects.length}</p>
                   </div>
                 </div>
@@ -525,7 +664,7 @@ export function PropertyProspects() {
                 <div className="flex items-center gap-2">
                   <DollarSign className="w-5 h-5 text-green-500" />
                   <div>
-                    <p className="text-sm text-gray-500">平均賃料</p>
+                    <p className="text-sm text-slate-500">平均賃料</p>
                     <p className="text-2xl font-bold">
                       {formatCurrency(
                         Math.round(
@@ -543,7 +682,7 @@ export function PropertyProspects() {
                 <div className="flex items-center gap-2">
                   <BarChart3 className="w-5 h-5 text-purple-500" />
                   <div>
-                    <p className="text-sm text-gray-500">平均坪単価</p>
+                    <p className="text-sm text-slate-500">平均坪単価</p>
                     <p className="text-2xl font-bold">
                       {formatCurrency(
                         Math.round(
@@ -561,7 +700,7 @@ export function PropertyProspects() {
                 <div className="flex items-center gap-2">
                   <Check className="w-5 h-5 text-green-500" />
                   <div>
-                    <p className="text-sm text-gray-500">承認済み</p>
+                    <p className="text-sm text-slate-500">承認済み</p>
                     <p className="text-2xl font-bold">
                       {prospects.filter((p) => p.status === "approved").length}
                     </p>
@@ -574,8 +713,8 @@ export function PropertyProspects() {
 
       {/* マイソクアップロードモーダル */}
       {showUploadModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto mx-4">
             <div className="p-4 border-b flex items-center justify-between">
               <h2 className="text-lg font-bold">マイソクOCR解析</h2>
               <button
@@ -584,7 +723,7 @@ export function PropertyProspects() {
                   setOcrResult(null);
                   setEditingProspect(null);
                 }}
-                className="p-1 hover:bg-gray-100 rounded"
+                className="p-1 hover:bg-slate-100 rounded"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -595,13 +734,13 @@ export function PropertyProspects() {
                 {ocrLoading ? (
                   <div className="flex flex-col items-center">
                     <RefreshCw className="w-8 h-8 animate-spin text-blue-600 mb-2" />
-                    <p className="text-gray-600">OCR解析中...</p>
-                    <p className="text-xs text-gray-400">Claude Vision APIで画像を解析しています</p>
+                    <p className="text-slate-600">OCR解析中...</p>
+                    <p className="text-xs text-slate-400">Claude Vision APIで画像を解析しています</p>
                   </div>
                 ) : (
                   <>
-                    <Upload className="w-12 h-12 mx-auto text-gray-300 mb-2" />
-                    <p className="text-gray-600 mb-2">マイソク画像をアップロード</p>
+                    <Upload className="w-12 h-12 mx-auto text-slate-300 mb-2" />
+                    <p className="text-slate-600 mb-2">マイソク画像をアップロード</p>
                     <input
                       type="file"
                       accept="image/*"
@@ -611,11 +750,11 @@ export function PropertyProspects() {
                     />
                     <label
                       htmlFor="maisoku-upload"
-                      className="inline-block px-4 py-2 bg-blue-600 text-white rounded-lg cursor-pointer hover:bg-blue-700"
+                      className="inline-block px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl cursor-pointer shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all"
                     >
                       ファイルを選択
                     </label>
-                    <p className="text-xs text-gray-400 mt-2">
+                    <p className="text-xs text-slate-400 mt-2">
                       対応形式: JPEG, PNG, GIF, WebP
                     </p>
                   </>
@@ -627,13 +766,13 @@ export function PropertyProspects() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <h3 className="font-medium">抽出結果</h3>
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-slate-500">
                       信頼度: {(ocrResult.confidence * 100).toFixed(0)}%
                     </span>
                   </div>
                   <div className="grid grid-cols-2 gap-3 text-sm">
                     <div>
-                      <label className="text-gray-500">物件名</label>
+                      <label className="text-slate-500">物件名</label>
                       <input
                         type="text"
                         value={editingProspect.name || ""}
@@ -644,7 +783,7 @@ export function PropertyProspects() {
                       />
                     </div>
                     <div>
-                      <label className="text-gray-500">住所</label>
+                      <label className="text-slate-500">住所</label>
                       <input
                         type="text"
                         value={editingProspect.address || ""}
@@ -655,7 +794,7 @@ export function PropertyProspects() {
                       />
                     </div>
                     <div>
-                      <label className="text-gray-500">賃料（円）</label>
+                      <label className="text-slate-500">賃料（円）</label>
                       <input
                         type="number"
                         value={editingProspect.rent || ""}
@@ -669,7 +808,7 @@ export function PropertyProspects() {
                       />
                     </div>
                     <div>
-                      <label className="text-gray-500">面積（坪）</label>
+                      <label className="text-slate-500">面積（坪）</label>
                       <input
                         type="number"
                         step="0.1"
@@ -684,7 +823,7 @@ export function PropertyProspects() {
                       />
                     </div>
                     <div>
-                      <label className="text-gray-500">最寄駅</label>
+                      <label className="text-slate-500">最寄駅</label>
                       <input
                         type="text"
                         value={editingProspect.nearestStation || ""}
@@ -695,7 +834,7 @@ export function PropertyProspects() {
                       />
                     </div>
                     <div>
-                      <label className="text-gray-500">徒歩（分）</label>
+                      <label className="text-slate-500">徒歩（分）</label>
                       <input
                         type="number"
                         value={editingProspect.walkMinutes || ""}
@@ -716,13 +855,13 @@ export function PropertyProspects() {
                         setOcrResult(null);
                         setEditingProspect(null);
                       }}
-                      className="px-4 py-2 border rounded-lg hover:bg-gray-50"
+                      className="px-4 py-2 border rounded-lg hover:bg-slate-50"
                     >
                       キャンセル
                     </button>
                     <button
                       onClick={handleSaveProspect}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                      className="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all"
                     >
                       保存
                     </button>
@@ -736,8 +875,8 @@ export function PropertyProspects() {
 
       {/* 編集モーダル */}
       {showEditModal && editingProspect && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto mx-4">
             <div className="p-4 border-b flex items-center justify-between">
               <h2 className="text-lg font-bold">
                 {editingProspect.id ? "物件編集" : "物件追加"}
@@ -747,7 +886,7 @@ export function PropertyProspects() {
                   setShowEditModal(false);
                   setEditingProspect(null);
                 }}
-                className="p-1 hover:bg-gray-100 rounded"
+                className="p-1 hover:bg-slate-100 rounded"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -755,7 +894,7 @@ export function PropertyProspects() {
             <div className="p-4">
               <div className="grid grid-cols-3 gap-4 text-sm">
                 <div className="col-span-2">
-                  <label className="text-gray-500">物件名 *</label>
+                  <label className="text-slate-500">物件名 *</label>
                   <input
                     type="text"
                     value={editingProspect.name || ""}
@@ -766,7 +905,7 @@ export function PropertyProspects() {
                   />
                 </div>
                 <div>
-                  <label className="text-gray-500">ステータス</label>
+                  <label className="text-slate-500">ステータス</label>
                   <select
                     value={editingProspect.status || "draft"}
                     onChange={(e) =>
@@ -781,7 +920,7 @@ export function PropertyProspects() {
                   </select>
                 </div>
                 <div className="col-span-3">
-                  <label className="text-gray-500">住所</label>
+                  <label className="text-slate-500">住所</label>
                   <input
                     type="text"
                     value={editingProspect.address || ""}
@@ -796,7 +935,7 @@ export function PropertyProspects() {
                   <h3 className="font-medium mb-3">賃料・面積</h3>
                   <div className="grid grid-cols-4 gap-4">
                     <div>
-                      <label className="text-gray-500">賃料（円）</label>
+                      <label className="text-slate-500">賃料（円）</label>
                       <input
                         type="number"
                         value={editingProspect.rent || ""}
@@ -810,7 +949,7 @@ export function PropertyProspects() {
                       />
                     </div>
                     <div>
-                      <label className="text-gray-500">共益費（円）</label>
+                      <label className="text-slate-500">共益費（円）</label>
                       <input
                         type="number"
                         value={editingProspect.managementFee || ""}
@@ -824,7 +963,7 @@ export function PropertyProspects() {
                       />
                     </div>
                     <div>
-                      <label className="text-gray-500">敷金（ヶ月）</label>
+                      <label className="text-slate-500">敷金（ヶ月）</label>
                       <input
                         type="number"
                         step="0.5"
@@ -839,7 +978,7 @@ export function PropertyProspects() {
                       />
                     </div>
                     <div>
-                      <label className="text-gray-500">礼金（ヶ月）</label>
+                      <label className="text-slate-500">礼金（ヶ月）</label>
                       <input
                         type="number"
                         step="0.5"
@@ -854,7 +993,7 @@ export function PropertyProspects() {
                       />
                     </div>
                     <div>
-                      <label className="text-gray-500">面積（坪）</label>
+                      <label className="text-slate-500">面積（坪）</label>
                       <input
                         type="number"
                         step="0.1"
@@ -869,7 +1008,7 @@ export function PropertyProspects() {
                       />
                     </div>
                     <div>
-                      <label className="text-gray-500">面積（㎡）</label>
+                      <label className="text-slate-500">面積（㎡）</label>
                       <input
                         type="number"
                         step="0.01"
@@ -884,7 +1023,7 @@ export function PropertyProspects() {
                       />
                     </div>
                     <div>
-                      <label className="text-gray-500">間取り</label>
+                      <label className="text-slate-500">間取り</label>
                       <input
                         type="text"
                         value={editingProspect.layout || ""}
@@ -895,7 +1034,7 @@ export function PropertyProspects() {
                       />
                     </div>
                     <div>
-                      <label className="text-gray-500">階数</label>
+                      <label className="text-slate-500">階数</label>
                       <input
                         type="text"
                         value={editingProspect.floor || ""}
@@ -912,7 +1051,7 @@ export function PropertyProspects() {
                   <h3 className="font-medium mb-3">物件情報</h3>
                   <div className="grid grid-cols-4 gap-4">
                     <div>
-                      <label className="text-gray-500">構造</label>
+                      <label className="text-slate-500">構造</label>
                       <input
                         type="text"
                         value={editingProspect.structure || ""}
@@ -923,7 +1062,7 @@ export function PropertyProspects() {
                       />
                     </div>
                     <div>
-                      <label className="text-gray-500">築年数</label>
+                      <label className="text-slate-500">築年数</label>
                       <input
                         type="number"
                         value={editingProspect.buildingAge || ""}
@@ -937,7 +1076,7 @@ export function PropertyProspects() {
                       />
                     </div>
                     <div>
-                      <label className="text-gray-500">最寄駅</label>
+                      <label className="text-slate-500">最寄駅</label>
                       <input
                         type="text"
                         value={editingProspect.nearestStation || ""}
@@ -948,7 +1087,7 @@ export function PropertyProspects() {
                       />
                     </div>
                     <div>
-                      <label className="text-gray-500">徒歩（分）</label>
+                      <label className="text-slate-500">徒歩（分）</label>
                       <input
                         type="number"
                         value={editingProspect.walkMinutes || ""}
@@ -971,7 +1110,7 @@ export function PropertyProspects() {
                   </h3>
                   <div className="grid grid-cols-3 gap-4">
                     <div>
-                      <label className="text-gray-500">駅乗降客数（人/日）</label>
+                      <label className="text-slate-500">駅乗降客数（人/日）</label>
                       <input
                         type="number"
                         value={editingProspect.stationPassengers || ""}
@@ -984,10 +1123,10 @@ export function PropertyProspects() {
                         className="w-full border rounded px-3 py-2 mt-1"
                         placeholder="例: 50000"
                       />
-                      <p className="text-xs text-gray-400 mt-1">最寄駅から自動取得可能</p>
+                      <p className="text-xs text-slate-400 mt-1">最寄駅から自動取得可能</p>
                     </div>
                     <div>
-                      <label className="text-gray-500">周辺法人数</label>
+                      <label className="text-slate-500">周辺法人数</label>
                       <input
                         type="number"
                         value={editingProspect.nearbyCompanies || ""}
@@ -1000,10 +1139,10 @@ export function PropertyProspects() {
                         className="w-full border rounded px-3 py-2 mt-1"
                         placeholder="例: 500"
                       />
-                      <p className="text-xs text-gray-400 mt-1">住所から推計可能</p>
+                      <p className="text-xs text-slate-400 mt-1">住所から推計可能</p>
                     </div>
                     <div>
-                      <label className="text-gray-500">立地スコア（0-100）</label>
+                      <label className="text-slate-500">立地スコア（0-100）</label>
                       <input
                         type="number"
                         min="0"
@@ -1018,13 +1157,13 @@ export function PropertyProspects() {
                         className="w-full border rounded px-3 py-2 mt-1"
                         placeholder="自動計算"
                       />
-                      <p className="text-xs text-gray-400 mt-1">シミュレーション時に自動計算</p>
+                      <p className="text-xs text-slate-400 mt-1">シミュレーション時に自動計算</p>
                     </div>
                   </div>
                 </div>
 
                 <div className="col-span-3 border-t pt-4 mt-2">
-                  <label className="text-gray-500">メモ</label>
+                  <label className="text-slate-500">メモ</label>
                   <textarea
                     value={editingProspect.notes || ""}
                     onChange={(e) =>
@@ -1042,13 +1181,13 @@ export function PropertyProspects() {
                     setShowEditModal(false);
                     setEditingProspect(null);
                   }}
-                  className="px-4 py-2 border rounded-lg hover:bg-gray-50"
+                  className="px-4 py-2 border rounded-lg hover:bg-slate-50"
                 >
                   キャンセル
                 </button>
                 <button
                   onClick={handleSaveProspect}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  className="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all"
                 >
                   保存
                 </button>
@@ -1060,22 +1199,22 @@ export function PropertyProspects() {
 
       {/* シミュレーションモーダル */}
       {showSimulationModal && simulatingProspect && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto mx-4">
             <div className="p-4 border-b flex items-center justify-between sticky top-0 bg-white z-10">
               <div>
                 <h2 className="text-lg font-bold flex items-center gap-2">
                   <LineChart className="w-5 h-5 text-purple-600" />
                   売上シミュレーション
                 </h2>
-                <p className="text-sm text-gray-500">{simulatingProspect.name}</p>
+                <p className="text-sm text-slate-500">{simulatingProspect.name}</p>
               </div>
               <button
                 onClick={() => {
                   setShowSimulationModal(false);
                   setSimulatingProspect(null);
                 }}
-                className="p-1 hover:bg-gray-100 rounded"
+                className="p-1 hover:bg-slate-100 rounded"
               >
                 <X className="w-5 h-5" />
               </button>

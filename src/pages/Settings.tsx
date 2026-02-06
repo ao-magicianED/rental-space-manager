@@ -163,87 +163,151 @@ export function Settings() {
                         updatedAt: "",
                       });
                     }}
-                    className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                    className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all"
                   >
                     <Plus className="h-4 w-4" />
                     施設を追加
                   </button>
                 </div>
 
-                {/* 施設一覧テーブル */}
-                <Card>
-                  <CardContent className="p-0">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium uppercase text-gray-500">
-                            コード
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium uppercase text-gray-500">
-                            施設名
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium uppercase text-gray-500">
-                            住所
-                          </th>
-                          <th className="px-6 py-3 text-right text-xs font-medium uppercase text-gray-500">
-                            月額家賃
-                          </th>
-                          <th className="px-6 py-3 text-right text-xs font-medium uppercase text-gray-500">
-                            固定費
-                          </th>
-                          <th className="px-6 py-3 text-center text-xs font-medium uppercase text-gray-500">
-                            部屋数
-                          </th>
-                          <th className="px-6 py-3 text-center text-xs font-medium uppercase text-gray-500">
-                            操作
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-gray-200 bg-white">
-                        {properties.map((property) => (
-                          <tr key={property.id} className="hover:bg-gray-50">
-                            <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                              {property.code}
-                            </td>
-                            <td className="px-6 py-4 text-sm text-gray-900">
-                              {property.name}
-                            </td>
-                            <td className="px-6 py-4 text-sm text-gray-500">
-                              {property.address || "-"}
-                            </td>
-                            <td className="px-6 py-4 text-right text-sm text-gray-900">
-                              ¥{property.monthlyRent.toLocaleString()}
-                            </td>
-                            <td className="px-6 py-4 text-right text-sm text-gray-900">
-                              ¥{property.monthlyFixedCost.toLocaleString()}
-                            </td>
-                            <td className="px-6 py-4 text-center text-sm text-gray-900">
-                              {property.roomCount}
-                            </td>
-                            <td className="px-6 py-4 text-center">
-                              <button
-                                onClick={() => setEditingProperty(property)}
-                                className="text-blue-600 hover:text-blue-800"
-                              >
-                                <Edit2 className="h-4 w-4" />
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                        {properties.length === 0 && (
+                {/* 施設一覧テーブル - デスクトップ */}
+                <div className="hidden lg:block">
+                  <Card>
+                    <CardContent className="p-0">
+                      <table className="min-w-full divide-y divide-slate-200">
+                        <thead className="bg-slate-50">
                           <tr>
-                            <td
-                              colSpan={7}
-                              className="px-6 py-12 text-center text-gray-500"
-                            >
-                              施設がありません。「施設を追加」から登録してください。
-                            </td>
+                            <th className="px-6 py-3 text-left text-xs font-semibold uppercase text-slate-600">
+                              コード
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-semibold uppercase text-slate-600">
+                              施設名
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-semibold uppercase text-slate-600">
+                              住所
+                            </th>
+                            <th className="px-6 py-3 text-right text-xs font-semibold uppercase text-slate-600">
+                              月額家賃
+                            </th>
+                            <th className="px-6 py-3 text-right text-xs font-semibold uppercase text-slate-600">
+                              固定費
+                            </th>
+                            <th className="px-6 py-3 text-center text-xs font-semibold uppercase text-slate-600">
+                              部屋数
+                            </th>
+                            <th className="px-6 py-3 text-center text-xs font-semibold uppercase text-slate-600">
+                              操作
+                            </th>
                           </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </CardContent>
-                </Card>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 bg-white">
+                          {properties.map((property) => (
+                            <tr key={property.id} className="hover:bg-slate-50 transition-colors">
+                              <td className="px-6 py-4 text-sm font-medium text-slate-900">
+                                {property.code}
+                              </td>
+                              <td className="px-6 py-4 text-sm text-slate-900">
+                                {property.name}
+                              </td>
+                              <td className="px-6 py-4 text-sm text-slate-500">
+                                {property.address || "-"}
+                              </td>
+                              <td className="px-6 py-4 text-right text-sm text-slate-900">
+                                ¥{property.monthlyRent.toLocaleString()}
+                              </td>
+                              <td className="px-6 py-4 text-right text-sm text-slate-900">
+                                ¥{property.monthlyFixedCost.toLocaleString()}
+                              </td>
+                              <td className="px-6 py-4 text-center text-sm text-slate-900">
+                                {property.roomCount}
+                              </td>
+                              <td className="px-6 py-4 text-center">
+                                <button
+                                  onClick={() => setEditingProperty(property)}
+                                  className="p-1.5 text-slate-500 hover:bg-slate-100 hover:text-blue-600 rounded transition-colors"
+                                >
+                                  <Edit2 className="h-4 w-4" />
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                          {properties.length === 0 && (
+                            <tr>
+                              <td
+                                colSpan={7}
+                                className="px-6 py-12 text-center text-slate-500"
+                              >
+                                施設がありません。「施設を追加」から登録してください。
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* 施設一覧カード - モバイル */}
+                <div className="lg:hidden space-y-3">
+                  {properties.length === 0 ? (
+                    <Card>
+                      <CardContent className="py-12 text-center">
+                        <Building2 className="mx-auto h-12 w-12 text-slate-300" />
+                        <p className="mt-4 text-slate-500">
+                          施設がありません。「施設を追加」から登録してください。
+                        </p>
+                      </CardContent>
+                    </Card>
+                  ) : (
+                    properties.map((property) => (
+                      <div
+                        key={property.id}
+                        className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+                      >
+                        <div className="flex items-start justify-between mb-3">
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
+                                {property.code}
+                              </span>
+                              <span className="text-xs text-slate-400">
+                                {property.roomCount}部屋
+                              </span>
+                            </div>
+                            <h3 className="font-semibold text-slate-900 mt-1">
+                              {property.name}
+                            </h3>
+                            {property.address && (
+                              <p className="text-xs text-slate-400 mt-0.5">
+                                {property.address}
+                              </p>
+                            )}
+                          </div>
+                          <button
+                            onClick={() => setEditingProperty(property)}
+                            className="p-2 text-slate-500 hover:bg-slate-100 hover:text-blue-600 rounded-lg transition-colors"
+                          >
+                            <Edit2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3 pt-3 border-t border-slate-100">
+                          <div>
+                            <div className="text-xs text-slate-400">月額家賃</div>
+                            <div className="font-medium text-slate-900">
+                              ¥{property.monthlyRent.toLocaleString()}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="text-xs text-slate-400">固定費</div>
+                            <div className="font-medium text-slate-900">
+                              ¥{property.monthlyFixedCost.toLocaleString()}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
               </div>
             )}
 
@@ -253,7 +317,7 @@ export function Settings() {
                 <div className="mb-4 flex items-center justify-between">
                   <div>
                     <h2 className="text-lg font-semibold">施設名マッピング</h2>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-slate-500">
                       各プラットフォームの施設名をマスタ施設に紐付けます
                     </p>
                   </div>
@@ -269,7 +333,7 @@ export function Settings() {
                       });
                     }}
                     disabled={properties.length === 0}
-                    className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                    className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all disabled:opacity-50"
                   >
                     <Plus className="h-4 w-4" />
                     マッピングを追加
@@ -279,16 +343,16 @@ export function Settings() {
                 {properties.length === 0 ? (
                   <Card>
                     <CardContent className="py-12 text-center">
-                      <Building2 className="mx-auto h-12 w-12 text-gray-400" />
-                      <h3 className="mt-4 text-lg font-medium text-gray-900">
+                      <Building2 className="mx-auto h-12 w-12 text-slate-400" />
+                      <h3 className="mt-4 text-lg font-medium text-slate-900">
                         まず施設を登録してください
                       </h3>
-                      <p className="mt-2 text-sm text-gray-500">
+                      <p className="mt-2 text-sm text-slate-500">
                         マッピングを作成するには、先に施設を登録する必要があります。
                       </p>
                       <button
                         onClick={() => setActiveTab("properties")}
-                        className="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                        className="mt-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all"
                       >
                         施設管理へ
                       </button>
@@ -307,7 +371,7 @@ export function Settings() {
                             <CardHeader>
                               <CardTitle className="flex items-center justify-between">
                                 <span>{platform.name}</span>
-                                <span className="text-sm font-normal text-gray-500">
+                                <span className="text-sm font-normal text-slate-500">
                                   手数料 {(platform.commissionRate * 100).toFixed(0)}%
                                 </span>
                               </CardTitle>
@@ -322,13 +386,13 @@ export function Settings() {
                                     return (
                                       <li
                                         key={mapping.id}
-                                        className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2"
+                                        className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2"
                                       >
                                         <div>
-                                          <span className="font-medium text-gray-900">
+                                          <span className="font-medium text-slate-900">
                                             {mapping.platformPropertyName}
                                           </span>
-                                          <span className="mx-2 text-gray-400">
+                                          <span className="mx-2 text-slate-400">
                                             →
                                           </span>
                                           <span className="text-blue-600">
@@ -339,7 +403,7 @@ export function Settings() {
                                           onClick={() =>
                                             setEditingMapping(mapping)
                                           }
-                                          className="text-gray-400 hover:text-gray-600"
+                                          className="text-slate-400 hover:text-slate-600"
                                         >
                                           <Edit2 className="h-4 w-4" />
                                         </button>
@@ -348,7 +412,7 @@ export function Settings() {
                                   })}
                                 </ul>
                               ) : (
-                                <p className="text-sm text-gray-500">
+                                <p className="text-sm text-slate-500">
                                   マッピングがありません
                                 </p>
                               )}
@@ -440,13 +504,13 @@ function PropertyModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="w-full max-w-lg rounded-lg bg-white p-6 shadow-xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+      <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl mx-4">
         <div className="mb-4 flex items-center justify-between">
           <h3 className="text-lg font-semibold">
             {isNew ? "施設を追加" : "施設を編集"}
           </h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -454,7 +518,7 @@ function PropertyModal({
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-slate-700">
                 施設コード
               </label>
               <input
@@ -462,12 +526,12 @@ function PropertyModal({
                 value={form.code}
                 onChange={(e) => setForm({ ...form, code: e.target.value })}
                 placeholder="P001"
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
                 required
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-slate-700">
                 部屋数
               </label>
               <input
@@ -477,13 +541,13 @@ function PropertyModal({
                   setForm({ ...form, roomCount: parseInt(e.target.value) || 1 })
                 }
                 min="1"
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-slate-700">
               施設名
             </label>
             <input
@@ -491,13 +555,13 @@ function PropertyModal({
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               placeholder="渋谷スペースA"
-              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-slate-700">
               住所
             </label>
             <input
@@ -505,13 +569,13 @@ function PropertyModal({
               value={form.address}
               onChange={(e) => setForm({ ...form, address: e.target.value })}
               placeholder="東京都渋谷区..."
-              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-slate-700">
                 月額家賃（円）
               </label>
               <input
@@ -520,11 +584,11 @@ function PropertyModal({
                 onChange={(e) =>
                   setForm({ ...form, monthlyRent: parseInt(e.target.value) || 0 })
                 }
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-slate-700">
                 月額固定費（円）
               </label>
               <input
@@ -536,7 +600,7 @@ function PropertyModal({
                     monthlyFixedCost: parseInt(e.target.value) || 0,
                   })
                 }
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
               />
             </div>
           </div>
@@ -545,13 +609,13 @@ function PropertyModal({
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
             >
               キャンセル
             </button>
             <button
               type="submit"
-              className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all"
             >
               <Save className="h-4 w-4" />
               保存
@@ -598,20 +662,20 @@ function MappingModal({
   const selectedPlatform = platforms.find((p) => p.id === form.platformId);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="w-full max-w-lg rounded-lg bg-white p-6 shadow-xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+      <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl mx-4">
         <div className="mb-4 flex items-center justify-between">
           <h3 className="text-lg font-semibold">
             {isNew ? "マッピングを追加" : "マッピングを編集"}
           </h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
             <X className="h-5 w-5" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-slate-700">
               プラットフォーム
             </label>
             <select
@@ -619,7 +683,7 @@ function MappingModal({
               onChange={(e) =>
                 setForm({ ...form, platformId: parseInt(e.target.value) })
               }
-              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
             >
               {platforms.map((pf) => (
                 <option key={pf.id} value={pf.id}>
@@ -630,7 +694,7 @@ function MappingModal({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-slate-700">
               {selectedPlatform?.name || "プラットフォーム"}上の施設名
             </label>
             <input
@@ -640,16 +704,16 @@ function MappingModal({
                 setForm({ ...form, platformPropertyName: e.target.value })
               }
               placeholder="インスタベースに登録されている施設名"
-              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
               required
             />
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-1 text-xs text-slate-500">
               CSVに記載されている施設名と完全一致させてください
             </p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-slate-700">
               紐付け先の施設（マスタ）
             </label>
             <select
@@ -657,7 +721,7 @@ function MappingModal({
               onChange={(e) =>
                 setForm({ ...form, propertyId: parseInt(e.target.value) })
               }
-              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
             >
               {properties.map((prop) => (
                 <option key={prop.id} value={prop.id}>
@@ -668,7 +732,7 @@ function MappingModal({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-slate-700">
               プラットフォーム上のID（任意）
             </label>
             <input
@@ -678,7 +742,7 @@ function MappingModal({
                 setForm({ ...form, platformPropertyId: e.target.value })
               }
               placeholder="12345"
-              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
             />
           </div>
 
@@ -686,13 +750,13 @@ function MappingModal({
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
             >
               キャンセル
             </button>
             <button
               type="submit"
-              className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all"
             >
               <Save className="h-4 w-4" />
               保存

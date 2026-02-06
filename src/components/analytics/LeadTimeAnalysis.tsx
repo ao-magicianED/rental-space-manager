@@ -110,7 +110,7 @@ export function LeadTimeAnalysis({
             <div className="flex items-center gap-2">
               <Clock className="w-5 h-5 text-blue-500" />
               <div>
-                <p className="text-sm text-gray-500">平均リードタイム</p>
+                <p className="text-sm text-slate-500">平均リードタイム</p>
                 <p className="text-2xl font-bold">{insights.avgLeadTime.toFixed(1)}日</p>
               </div>
             </div>
@@ -121,11 +121,11 @@ export function LeadTimeAnalysis({
             <div className="flex items-center gap-2">
               <AlertCircle className="w-5 h-5 text-orange-500" />
               <div>
-                <p className="text-sm text-gray-500">直前予約（3日以内）</p>
+                <p className="text-sm text-slate-500">直前予約（3日以内）</p>
                 <p className="text-2xl font-bold text-orange-600">
                   {(insights.lastMinuteRate * 100).toFixed(1)}%
                 </p>
-                <p className="text-xs text-gray-400">{insights.lastMinuteCount}件</p>
+                <p className="text-xs text-slate-400">{insights.lastMinuteCount}件</p>
               </div>
             </div>
           </CardContent>
@@ -135,18 +135,18 @@ export function LeadTimeAnalysis({
             <div className="flex items-center gap-2">
               <TrendingUp className="w-5 h-5 text-green-500" />
               <div>
-                <p className="text-sm text-gray-500">早期予約（14日以上）</p>
+                <p className="text-sm text-slate-500">早期予約（14日以上）</p>
                 <p className="text-2xl font-bold text-green-600">
                   {(insights.earlyBirdRate * 100).toFixed(1)}%
                 </p>
-                <p className="text-xs text-gray-400">{insights.earlyBirdCount}件</p>
+                <p className="text-xs text-slate-400">{insights.earlyBirdCount}件</p>
               </div>
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
-            <p className="text-sm text-gray-500">分析対象予約数</p>
+            <p className="text-sm text-slate-500">分析対象予約数</p>
             <p className="text-2xl font-bold">{insights.totalBookings.toLocaleString()}件</p>
           </CardContent>
         </Card>
@@ -176,7 +176,7 @@ export function LeadTimeAnalysis({
                 </BarChart>
               </ResponsiveContainer>
             </div>
-            <p className="text-xs text-gray-500 mt-2 text-center">
+            <p className="text-xs text-slate-500 mt-2 text-center">
               横軸: 予約日から利用日までの日数
             </p>
           </CardContent>
@@ -205,7 +205,7 @@ export function LeadTimeAnalysis({
                 </LineChart>
               </ResponsiveContainer>
             </div>
-            <p className="text-xs text-gray-500 mt-2 text-center">
+            <p className="text-xs text-slate-500 mt-2 text-center">
               直前予約の単価傾向を確認
             </p>
           </CardContent>
@@ -278,7 +278,7 @@ export function LeadTimeAnalysis({
                       ? "bg-green-50 border-green-200"
                       : rec.type === "DECREASE"
                       ? "bg-orange-50 border-orange-200"
-                      : "bg-gray-50 border-gray-200"
+                      : "bg-slate-50 border-slate-200"
                   }`}
                 >
                   <div className="flex items-start justify-between">
@@ -300,13 +300,13 @@ export function LeadTimeAnalysis({
                           {rec.type === "INCREASE" ? "値上げ推奨" : "値下げ推奨"}
                         </span>
                       </div>
-                      <p className="text-sm text-gray-600 mt-1">{rec.reason}</p>
+                      <p className="text-sm text-slate-600 mt-1">{rec.reason}</p>
                       <p className="text-sm font-medium mt-1">{rec.suggestedAction}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs text-gray-500">稼働率</p>
+                      <p className="text-xs text-slate-500">稼働率</p>
                       <p className="font-bold">{rec.occupancyRate.toFixed(0)}%</p>
-                      <p className="text-xs text-gray-500 mt-1">信頼度</p>
+                      <p className="text-xs text-slate-500 mt-1">信頼度</p>
                       <p className="text-sm">{(rec.confidence * 100).toFixed(0)}%</p>
                     </div>
                   </div>

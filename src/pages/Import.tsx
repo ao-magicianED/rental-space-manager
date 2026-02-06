@@ -164,13 +164,13 @@ export function Import() {
               <CardContent>
                 {/* プラットフォーム選択 */}
                 <div className="mb-6">
-                  <label className="mb-2 block text-sm font-medium text-gray-700">
+                  <label className="mb-2 block text-sm font-medium text-slate-700">
                     プラットフォーム
                   </label>
                   <select
                     value={selectedPlatform}
                     onChange={(e) => setSelectedPlatform(e.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
+                    className="w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
                   >
                     <option value="">選択してください</option>
                     {platforms.map((pf) => (
@@ -188,7 +188,7 @@ export function Import() {
                   className={`relative rounded-lg border-2 border-dashed p-8 text-center transition-colors ${
                     file
                       ? "border-green-300 bg-green-50"
-                      : "border-gray-300 hover:border-blue-400 hover:bg-blue-50"
+                      : "border-slate-300 hover:border-blue-400 hover:bg-blue-50"
                   }`}
                 >
                   <input
@@ -201,7 +201,7 @@ export function Import() {
                     <div className="flex flex-col items-center">
                       <FileText className="mb-2 h-12 w-12 text-green-500" />
                       <p className="font-medium text-green-700">{file.name}</p>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-slate-500">
                         {(file.size / 1024).toFixed(1)} KB
                       </p>
                       <button
@@ -216,11 +216,11 @@ export function Import() {
                     </div>
                   ) : (
                     <div className="flex flex-col items-center">
-                      <Upload className="mb-2 h-12 w-12 text-gray-400" />
-                      <p className="font-medium text-gray-700">
+                      <Upload className="mb-2 h-12 w-12 text-slate-400" />
+                      <p className="font-medium text-slate-700">
                         CSVファイルをドラッグ＆ドロップ
                       </p>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-slate-500">
                         またはクリックしてファイルを選択
                       </p>
                     </div>
@@ -281,51 +281,51 @@ export function Import() {
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <CardTitle>2. プレビュー（最初の10行）</CardTitle>
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-slate-500">
                       検出カラム: {rawHeaders.length}
                     </span>
                   </div>
                 </CardHeader>
                 <CardContent>
                   <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200 text-sm">
-                      <thead className="bg-gray-50">
+                    <table className="min-w-full divide-y divide-slate-200 text-sm">
+                      <thead className="bg-slate-50">
                         <tr>
-                          <th className="px-4 py-2 text-left font-medium text-gray-500">
+                          <th className="px-4 py-2 text-left font-medium text-slate-500">
                             施設名
                           </th>
-                          <th className="px-4 py-2 text-left font-medium text-gray-500">
+                          <th className="px-4 py-2 text-left font-medium text-slate-500">
                             利用日
                           </th>
-                          <th className="px-4 py-2 text-left font-medium text-gray-500">
+                          <th className="px-4 py-2 text-left font-medium text-slate-500">
                             時間
                           </th>
-                          <th className="px-4 py-2 text-right font-medium text-gray-500">
+                          <th className="px-4 py-2 text-right font-medium text-slate-500">
                             売上
                           </th>
-                          <th className="px-4 py-2 text-left font-medium text-gray-500">
+                          <th className="px-4 py-2 text-left font-medium text-slate-500">
                             ゲスト
                           </th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-gray-200">
+                      <tbody className="divide-y divide-slate-200">
                         {preview.map((row, i) => (
-                          <tr key={i} className="hover:bg-gray-50">
-                            <td className="px-4 py-2 text-gray-900">
+                          <tr key={i} className="hover:bg-slate-50">
+                            <td className="px-4 py-2 text-slate-900">
                               {row.platformPropertyName || "-"}
                             </td>
-                            <td className="px-4 py-2 text-gray-600">
+                            <td className="px-4 py-2 text-slate-600">
                               {row.usageDate || "-"}
                             </td>
-                            <td className="px-4 py-2 text-gray-600">
+                            <td className="px-4 py-2 text-slate-600">
                               {row.startTime && row.endTime
                                 ? `${row.startTime}〜${row.endTime}`
                                 : "-"}
                             </td>
-                            <td className="px-4 py-2 text-right text-gray-900">
+                            <td className="px-4 py-2 text-right text-slate-900">
                               ¥{row.grossAmount?.toLocaleString() || 0}
                             </td>
-                            <td className="px-4 py-2 text-gray-600">
+                            <td className="px-4 py-2 text-slate-600">
                               {row.guestName || "-"}
                             </td>
                           </tr>
@@ -339,7 +339,7 @@ export function Import() {
                     <button
                       onClick={handleImport}
                       disabled={importing || !selectedPlatform}
-                      className="rounded-lg bg-blue-600 px-6 py-2 font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                      className="rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-2.5 font-medium text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all disabled:opacity-50"
                     >
                       {importing ? "インポート中..." : "インポート実行"}
                     </button>
@@ -357,8 +357,8 @@ export function Import() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <h4 className="font-medium text-gray-900">自動検出カラム</h4>
-                  <ul className="mt-2 space-y-1 text-sm text-gray-600">
+                  <h4 className="font-medium text-slate-900">自動検出カラム</h4>
+                  <ul className="mt-2 space-y-1 text-sm text-slate-600">
                     <li>• 施設名 / スペース名</li>
                     <li>• 利用日 / 予約日</li>
                     <li>• 開始時刻 / 終了時刻</li>
@@ -369,8 +369,8 @@ export function Import() {
                 </div>
 
                 <div>
-                  <h4 className="font-medium text-gray-900">日付形式</h4>
-                  <ul className="mt-2 space-y-1 text-sm text-gray-600">
+                  <h4 className="font-medium text-slate-900">日付形式</h4>
+                  <ul className="mt-2 space-y-1 text-sm text-slate-600">
                     <li>• 2024-01-15</li>
                     <li>• 2024/01/15</li>
                     <li>• 2024年1月15日</li>
@@ -378,8 +378,8 @@ export function Import() {
                 </div>
 
                 <div>
-                  <h4 className="font-medium text-gray-900">文字コード</h4>
-                  <p className="mt-2 text-sm text-gray-600">
+                  <h4 className="font-medium text-slate-900">文字コード</h4>
+                  <p className="mt-2 text-sm text-slate-600">
                     UTF-8 / Shift_JIS 両方に対応
                   </p>
                 </div>

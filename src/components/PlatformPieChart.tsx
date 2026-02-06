@@ -79,7 +79,7 @@ export function PlatformPieChart({
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle>{title}</CardTitle>
-          <span className="text-sm text-gray-500">
+          <span className="text-sm text-slate-500">
             合計: ¥{totalSales.toLocaleString()}
           </span>
         </div>
@@ -122,7 +122,7 @@ export function PlatformPieChart({
                 align="right"
                 verticalAlign="middle"
                 formatter={(value) => (
-                  <span className="text-sm text-gray-700">{value}</span>
+                  <span className="text-sm text-slate-700">{value}</span>
                 )}
               />
             </PieChart>

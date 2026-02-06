@@ -63,25 +63,25 @@ export function UsageAnalysis({ data, totalBookings, totalAmount }: UsageAnalysi
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4">
-            <p className="text-sm text-gray-500">用途の種類</p>
+            <p className="text-sm text-slate-500">用途の種類</p>
             <p className="text-2xl font-bold">{data.length}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
-            <p className="text-sm text-gray-500">総予約件数</p>
+            <p className="text-sm text-slate-500">総予約件数</p>
             <p className="text-2xl font-bold">{totalBookings.toLocaleString()}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
-            <p className="text-sm text-gray-500">総売上</p>
+            <p className="text-sm text-slate-500">総売上</p>
             <p className="text-2xl font-bold">{formatCurrency(totalAmount)}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
-            <p className="text-sm text-gray-500">平均単価</p>
+            <p className="text-sm text-slate-500">平均単価</p>
             <p className="text-2xl font-bold">
               {formatCurrency(totalBookings > 0 ? totalAmount / totalBookings : 0)}
             </p>
@@ -179,7 +179,7 @@ export function UsageAnalysis({ data, totalBookings, totalAmount }: UsageAnalysi
               </thead>
               <tbody>
                 {chartData.map((item, i) => (
-                  <tr key={i} className="border-b hover:bg-gray-50">
+                  <tr key={i} className="border-b hover:bg-slate-50">
                     <td className="py-2 px-3 flex items-center gap-2">
                       <div
                         className="w-3 h-3 rounded-full"

@@ -49,7 +49,7 @@ export function ReportExportButton({
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         disabled={disabled || isLoading}
-        className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+        className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {isLoading ? (
           <svg
@@ -91,7 +91,7 @@ export function ReportExportButton({
             <button
               type="button"
               onClick={() => handleExport("pdf")}
-              className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
+              className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-100"
             >
               <FileText className="h-4 w-4 text-red-500" />
               <span>PDFでダウンロード</span>
@@ -99,7 +99,7 @@ export function ReportExportButton({
             <button
               type="button"
               onClick={() => handleExport("excel")}
-              className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
+              className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-100"
             >
               <FileSpreadsheet className="h-4 w-4 text-green-600" />
               <span>Excelでダウンロード</span>

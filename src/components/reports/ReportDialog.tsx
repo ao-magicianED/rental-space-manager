@@ -68,11 +68,11 @@ export function ReportDialog({
       <div className="relative z-50 w-full max-w-lg rounded-lg bg-white p-6 shadow-xl">
         {/* ヘッダー */}
         <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">レポート出力</h2>
+          <h2 className="text-lg font-semibold text-slate-900">レポート出力</h2>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-md p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-500"
+            className="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-500"
           >
             <X className="h-5 w-5" />
           </button>
@@ -80,7 +80,7 @@ export function ReportDialog({
 
         {/* レポート種類選択 */}
         <div className="mb-6">
-          <label className="mb-2 block text-sm font-medium text-gray-700">
+          <label className="mb-2 block text-sm font-medium text-slate-700">
             レポートの種類
           </label>
           <div className="space-y-2">
@@ -90,7 +90,7 @@ export function ReportDialog({
                 className={`flex cursor-pointer items-start rounded-md border p-3 transition-colors ${
                   selectedReport === report.value
                     ? "border-blue-500 bg-blue-50"
-                    : "border-gray-200 hover:border-gray-300"
+                    : "border-slate-200 hover:border-slate-300"
                 }`}
               >
                 <input
@@ -102,10 +102,10 @@ export function ReportDialog({
                   className="mt-0.5 h-4 w-4 text-blue-600 focus:ring-blue-500"
                 />
                 <div className="ml-3">
-                  <span className="block text-sm font-medium text-gray-900">
+                  <span className="block text-sm font-medium text-slate-900">
                     {report.label}
                   </span>
-                  <span className="block text-xs text-gray-500">
+                  <span className="block text-xs text-slate-500">
                     {report.description}
                   </span>
                 </div>
@@ -116,7 +116,7 @@ export function ReportDialog({
 
         {/* 期間選択 */}
         <div className="mb-6">
-          <label className="mb-2 block text-sm font-medium text-gray-700">
+          <label className="mb-2 block text-sm font-medium text-slate-700">
             <Calendar className="mr-1 inline h-4 w-4" />
             期間
           </label>
@@ -125,21 +125,21 @@ export function ReportDialog({
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="flex-1 rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
-            <span className="text-gray-500">〜</span>
+            <span className="text-slate-500">〜</span>
             <input
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="flex-1 rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
         </div>
 
         {/* 出力形式選択 */}
         <div className="mb-6">
-          <label className="mb-2 block text-sm font-medium text-gray-700">
+          <label className="mb-2 block text-sm font-medium text-slate-700">
             出力形式
           </label>
           <div className="flex gap-4">
@@ -147,7 +147,7 @@ export function ReportDialog({
               className={`flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-md border p-3 transition-colors ${
                 selectedFormat === "excel"
                   ? "border-green-500 bg-green-50"
-                  : "border-gray-200 hover:border-gray-300"
+                  : "border-slate-200 hover:border-slate-300"
               }`}
             >
               <input
@@ -160,12 +160,12 @@ export function ReportDialog({
               />
               <FileSpreadsheet
                 className={`h-5 w-5 ${
-                  selectedFormat === "excel" ? "text-green-600" : "text-gray-400"
+                  selectedFormat === "excel" ? "text-green-600" : "text-slate-400"
                 }`}
               />
               <span
                 className={`text-sm font-medium ${
-                  selectedFormat === "excel" ? "text-green-700" : "text-gray-600"
+                  selectedFormat === "excel" ? "text-green-700" : "text-slate-600"
                 }`}
               >
                 Excel
@@ -175,7 +175,7 @@ export function ReportDialog({
               className={`flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-md border p-3 transition-colors ${
                 selectedFormat === "pdf"
                   ? "border-red-500 bg-red-50"
-                  : "border-gray-200 hover:border-gray-300"
+                  : "border-slate-200 hover:border-slate-300"
               }`}
             >
               <input
@@ -188,12 +188,12 @@ export function ReportDialog({
               />
               <FileText
                 className={`h-5 w-5 ${
-                  selectedFormat === "pdf" ? "text-red-500" : "text-gray-400"
+                  selectedFormat === "pdf" ? "text-red-500" : "text-slate-400"
                 }`}
               />
               <span
                 className={`text-sm font-medium ${
-                  selectedFormat === "pdf" ? "text-red-700" : "text-gray-600"
+                  selectedFormat === "pdf" ? "text-red-700" : "text-slate-600"
                 }`}
               >
                 PDF
@@ -207,7 +207,7 @@ export function ReportDialog({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
             キャンセル
           </button>
@@ -215,7 +215,7 @@ export function ReportDialog({
             type="button"
             onClick={handleExport}
             disabled={loading}
-            className="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {loading ? (
               <>
