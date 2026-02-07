@@ -67,7 +67,7 @@ export function PropertySalesChart({
         <CardTitle>{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="h-80">
+        <div className="h-64 sm:h-80 overflow-x-auto">
           <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
             <BarChart
               data={chartData}

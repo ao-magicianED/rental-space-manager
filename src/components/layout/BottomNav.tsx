@@ -5,6 +5,7 @@ import {
   Settings,
   CalendarCheck,
   Upload,
+  Building2,
 } from "lucide-react";
 
 interface NavItem {
@@ -34,6 +35,12 @@ const navItems: NavItem[] = [
     hash: "analytics",
   },
   {
+    id: "properties",
+    label: "投資",
+    icon: <Building2 className="h-5 w-5" />,
+    hash: "properties",
+  },
+  {
     id: "import",
     label: "取込",
     icon: <Upload className="h-5 w-5" />,
@@ -41,7 +48,7 @@ const navItems: NavItem[] = [
   },
   {
     id: "settings",
-    label: "その他",
+    label: "他",
     icon: <Settings className="h-5 w-5" />,
     hash: "settings",
   },
@@ -70,7 +77,7 @@ export function BottomNav() {
           <a
             key={item.id}
             href={`#${item.hash}`}
-            className={`flex flex-col items-center justify-center min-w-[48px] min-h-[56px] py-2 px-2 rounded-xl transition-all active:scale-95 ${
+            className={`flex flex-col items-center justify-center min-w-[44px] min-h-[54px] py-1.5 px-1 rounded-xl transition-all active:scale-95 ${
               isActive(item.hash)
                 ? "text-blue-600"
                 : "text-slate-400 hover:text-slate-600 active:bg-slate-100"

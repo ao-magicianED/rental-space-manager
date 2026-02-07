@@ -144,7 +144,7 @@ export function Dashboard() {
             <p className="text-lg font-medium text-slate-900">{error}</p>
             <button
               onClick={fetchData}
-              className="mt-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-2.5 text-sm font-medium text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all"
+              className="mt-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-2.5 text-sm font-medium text-white shadow-sm hover:shadow-md transition-all"
             >
               再試行
             </button>
@@ -176,7 +176,7 @@ export function Dashboard() {
           <button
             onClick={fetchData}
             disabled={loading}
-            className="flex items-center gap-1.5 sm:gap-2 rounded-lg sm:rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-2.5 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-medium text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all disabled:opacity-50"
+            className="flex items-center gap-1.5 sm:gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-2.5 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-medium text-white shadow-sm hover:shadow-md transition-all disabled:opacity-50"
           >
             <RefreshCw
               className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
@@ -189,13 +189,8 @@ export function Dashboard() {
       {loading && !summary ? (
         <div className="flex h-96 items-center justify-center">
           <div className="text-center">
-            <div className="relative mx-auto h-16 w-16">
-              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 animate-ping opacity-20" />
-              <div className="relative flex h-full w-full items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-indigo-600">
-                <RefreshCw className="h-8 w-8 animate-spin text-white" />
-              </div>
-            </div>
-            <p className="mt-4 text-sm font-medium text-slate-500">データを読み込んでいます...</p>
+            <RefreshCw className="mx-auto h-8 w-8 animate-spin text-blue-600" />
+            <p className="mt-4 text-sm text-slate-500">データを読み込んでいます...</p>
           </div>
         </div>
       ) : (
@@ -207,6 +202,7 @@ export function Dashboard() {
               value={`¥${(summary?.totalGross || 0).toLocaleString()}`}
               icon={<DollarSign className="h-5 w-5 sm:h-6 sm:w-6" />}
               variant="blue"
+              trend={summary?.trends?.totalGross}
             />
             <KpiCard
               title="予約件数"
@@ -214,6 +210,7 @@ export function Dashboard() {
               subtitle="件"
               icon={<CalendarCheck className="h-5 w-5 sm:h-6 sm:w-6" />}
               variant="green"
+              trend={summary?.trends?.bookingCount}
             />
             <KpiCard
               title="稼働率"
@@ -229,15 +226,16 @@ export function Dashboard() {
               }
               icon={<Building2 className="h-5 w-5 sm:h-6 sm:w-6" />}
               variant="orange"
+              trend={summary?.trends?.grossProfit}
             />
           </div>
 
           {/* グラフエリア */}
           <div className="mb-6 sm:mb-8 grid gap-4 sm:gap-6 lg:grid-cols-2">
-            <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm overflow-x-auto">
+            <div className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm overflow-x-auto">
               <SalesChart data={dailySales} />
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm">
+            <div className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm">
               <PlatformPieChart
                 salesData={summary?.salesByPlatform || []}
                 platforms={platforms}
@@ -246,7 +244,7 @@ export function Dashboard() {
           </div>
 
           {/* 店舗別売上 */}
-          <div className="mb-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="mb-8 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
             <PropertySalesChart
               salesData={summary?.salesByProperty || []}
               properties={properties}
@@ -257,7 +255,7 @@ export function Dashboard() {
           <div className="mb-8">
             <button
               onClick={() => setShowComparison(!showComparison)}
-              className="flex w-full items-center justify-between rounded-2xl border border-slate-200 bg-white px-6 py-4 text-left shadow-sm hover:bg-slate-50 transition-colors"
+              className="flex w-full items-center justify-between rounded-xl border border-slate-200 bg-white px-6 py-4 text-left shadow-sm hover:bg-slate-50 transition-colors"
             >
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600">
@@ -276,7 +274,7 @@ export function Dashboard() {
             </button>
 
             {showComparison && (
-              <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <div className="mt-4 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
                 <YearOverYearComparison
                   startDate={startDate}
                   endDate={endDate}
@@ -289,7 +287,7 @@ export function Dashboard() {
           {/* データなしの場合 */}
           {summary?.bookingCount === 0 && (
             <div className="rounded-2xl border-2 border-dashed border-slate-300 bg-gradient-to-br from-slate-50 to-white p-12 text-center">
-              <div className="mx-auto h-16 w-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
+              <div className="mx-auto h-16 w-16 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
                 <Building2 className="h-8 w-8 text-white" />
               </div>
               <h3 className="mt-6 text-lg font-semibold text-slate-900">
@@ -300,7 +298,7 @@ export function Dashboard() {
               </p>
               <a
                 href="#import"
-                className="mt-6 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3 text-sm font-medium text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all"
+                className="mt-6 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3 text-sm font-medium text-white shadow-sm hover:shadow-md transition-all"
               >
                 <Building2 className="h-4 w-4" />
                 CSVインポート

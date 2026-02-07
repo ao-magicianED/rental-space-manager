@@ -42,7 +42,7 @@ export function SalesChart({ data, title = "売上推移" }: SalesChartProps) {
         <CardTitle>{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="h-80">
+        <div className="h-64 sm:h-80">
           <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
             <LineChart
               data={chartData}

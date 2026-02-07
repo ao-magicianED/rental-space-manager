@@ -330,15 +330,73 @@ app.get("/api/dashboard/summary", async (req, res) => {
       )
       .groupBy(bookings.platformId);
 
+    // 前月比計算用：前月の同期間データを取得
+    const currentStart = new Date(startDate as string);
+    const currentEnd = new Date(endDate as string);
+    const periodDays = Math.ceil((currentEnd.getTime() - currentStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    const prevEnd = new Date(currentStart);
+    prevEnd.setDate(prevEnd.getDate() - 1);
+    const prevStart = new Date(prevEnd);
+    prevStart.setDate(prevStart.getDate() - periodDays + 1);
+    const prevStartStr = prevStart.toISOString().split("T")[0];
+    const prevEndStr = prevEnd.toISOString().split("T")[0];
+
+    const [prevSalesResult, prevExpenseResult] = await Promise.all([
+      db
+        .select({
+          totalGross: sql<number>`COALESCE(SUM(${bookings.grossAmount}), 0)`,
+          totalNet: sql<number>`COALESCE(SUM(${bookings.netAmount}), 0)`,
+          bookingCount: sql<number>`COUNT(*)`,
+        })
+        .from(bookings)
+        .where(
+          and(
+            gte(bookings.usageDate, prevStartStr),
+            lte(bookings.usageDate, prevEndStr),
+            eq(bookings.status, "confirmed")
+          )
+        ),
+      db
+        .select({
+          totalExpense: sql<number>`COALESCE(SUM(${expenses.amount}), 0)`,
+        })
+        .from(expenses)
+        .where(
+          and(
+            gte(expenses.expenseDate, prevStartStr),
+            lte(expenses.expenseDate, prevEndStr)
+          )
+        ),
+    ]);
+
+    const currentGross = salesResult[0]?.totalGross || 0;
+    const currentNet = salesResult[0]?.totalNet || 0;
+    const currentBookings = salesResult[0]?.bookingCount || 0;
+    const currentExpense = expenseResult[0]?.totalExpense || 0;
+    const currentProfit = currentNet - currentExpense;
+
+    const prevGross = prevSalesResult[0]?.totalGross || 0;
+    const prevBookings = prevSalesResult[0]?.bookingCount || 0;
+    const prevNet = prevSalesResult[0]?.totalNet || 0;
+    const prevExpense = prevExpenseResult[0]?.totalExpense || 0;
+    const prevProfit = prevNet - prevExpense;
+
+    const calcTrend = (current: number, previous: number) =>
+      previous > 0 ? ((current - previous) / previous) * 100 : current > 0 ? 100 : 0;
+
     const summary = {
-      totalGross: salesResult[0]?.totalGross || 0,
-      totalNet: salesResult[0]?.totalNet || 0,
-      bookingCount: salesResult[0]?.bookingCount || 0,
-      totalExpense: expenseResult[0]?.totalExpense || 0,
-      grossProfit:
-        (salesResult[0]?.totalNet || 0) - (expenseResult[0]?.totalExpense || 0),
+      totalGross: currentGross,
+      totalNet: currentNet,
+      bookingCount: currentBookings,
+      totalExpense: currentExpense,
+      grossProfit: currentProfit,
       salesByProperty,
       salesByPlatform,
+      trends: {
+        totalGross: calcTrend(currentGross, prevGross),
+        bookingCount: calcTrend(currentBookings, prevBookings),
+        grossProfit: calcTrend(currentProfit, prevProfit),
+      },
     };
 
     res.json(summary);

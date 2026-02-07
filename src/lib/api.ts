@@ -81,6 +81,11 @@ export interface DashboardSummary {
   grossProfit: number;
   salesByProperty: { propertyId: number; totalGross: number; bookingCount: number }[];
   salesByPlatform: { platformId: number; totalGross: number; bookingCount: number }[];
+  trends?: {
+    totalGross: number;
+    bookingCount: number;
+    grossProfit: number;
+  };
 }
 
 export interface DailySales {

@@ -78,7 +78,7 @@ export function KpiCard({
 
   return (
     <div
-      className={`relative overflow-hidden rounded-2xl border ${styles.border} ${styles.bg} p-4 sm:p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-0.5`}
+      className={`relative overflow-hidden rounded-xl border ${styles.border} ${styles.bg} p-4 sm:p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-0.5`}
     >
       {/* 背景の装飾 */}
       <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-white/40 blur-2xl" />
@@ -94,7 +94,7 @@ export function KpiCard({
           )}
         </div>
         {icon && (
-          <div className={`flex-shrink-0 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl ${styles.iconBg} ${styles.iconColor} shadow-lg`}>
+          <div className={`flex-shrink-0 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl ${styles.iconBg} ${styles.iconColor}`}>
             {icon}
           </div>
         )}
