@@ -286,21 +286,20 @@ export function Dashboard() {
 
           {/* データなしの場合 */}
           {summary?.bookingCount === 0 && (
-            <div className="rounded-2xl border-2 border-dashed border-slate-300 bg-gradient-to-br from-slate-50 to-white p-12 text-center">
-              <div className="mx-auto h-16 w-16 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
-                <Building2 className="h-8 w-8 text-white" />
+            <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center">
+              <div className="mx-auto h-12 w-12 rounded-lg bg-slate-200 flex items-center justify-center">
+                <Building2 className="h-6 w-6 text-slate-500" />
               </div>
-              <h3 className="mt-6 text-lg font-semibold text-slate-900">
+              <h3 className="mt-4 text-base font-semibold text-slate-900">
                 データがありません
               </h3>
-              <p className="mt-2 text-sm text-slate-500">
+              <p className="mt-1 text-sm text-slate-500">
                 CSVファイルをインポートして、売上データを追加してください。
               </p>
               <a
                 href="#import"
-                className="mt-6 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3 text-sm font-medium text-white shadow-sm hover:shadow-md transition-all"
+                className="mt-4 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
               >
-                <Building2 className="h-4 w-4" />
                 CSVインポート
               </a>
             </div>

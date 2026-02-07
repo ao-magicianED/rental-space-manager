@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { TrendingUp, TrendingDown, Users, Clock, DollarSign, Calendar } from "lucide-react";
+import { TrendingUp, TrendingDown, Users, Clock, DollarSign, Calendar, ChevronDown, ChevronUp } from "lucide-react";
 
 interface KpiData {
   revenue: {
@@ -88,6 +89,17 @@ function KpiCard({
 }
 
 export function KpiDashboard({ data }: KpiDashboardProps) {
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    revenue: true,
+    customer: false,
+    occupancy: false,
+    demand: false,
+  });
+
+  const toggleSection = (key: string) => {
+    setExpandedSections((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
   const formatCurrency = (value: number) =>
     `¥${Math.round(value).toLocaleString()}`;
 
@@ -96,191 +108,245 @@ export function KpiDashboard({ data }: KpiDashboardProps) {
   const formatHours = (value: number[]) =>
     value.map((h) => `${h}時`).join(", ");
 
+  const SectionHeader = ({
+    sectionKey,
+    icon: Icon,
+    iconColor,
+    label,
+    summary,
+  }: {
+    sectionKey: string;
+    icon: React.ElementType;
+    iconColor: string;
+    label: string;
+    summary?: string;
+  }) => (
+    <button
+      onClick={() => toggleSection(sectionKey)}
+      className="w-full flex items-center justify-between py-2 group"
+    >
+      <h3 className="text-lg font-semibold flex items-center gap-2">
+        <Icon className={`w-5 h-5 ${iconColor}`} />
+        {label}
+      </h3>
+      <div className="flex items-center gap-3">
+        {!expandedSections[sectionKey] && summary && (
+          <span className="text-sm text-slate-400">{summary}</span>
+        )}
+        {expandedSections[sectionKey] ? (
+          <ChevronUp className="w-5 h-5 text-slate-400 group-hover:text-slate-600 transition-colors" />
+        ) : (
+          <ChevronDown className="w-5 h-5 text-slate-400 group-hover:text-slate-600 transition-colors" />
+        )}
+      </div>
+    </button>
+  );
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* 収益指標 */}
       <div>
-        <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-          <DollarSign className="w-5 h-5 text-green-600" />
-          収益指標
-        </h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <KpiCard
-            title="総売上"
-            value={formatCurrency(data.revenue.total)}
-            icon={DollarSign}
-            color="green"
-          />
-          <KpiCard
-            title="純収入（手数料控除後）"
-            value={formatCurrency(data.revenue.net)}
-            subValue={`手数料: ${formatCurrency(data.revenue.total - data.revenue.net)}`}
-            icon={DollarSign}
-            color="green"
-          />
-          <KpiCard
-            title="1予約あたり単価"
-            value={formatCurrency(data.pricing.avgPerBooking)}
-            icon={DollarSign}
-            color="blue"
-          />
-          <KpiCard
-            title="RevPAR"
-            value={formatCurrency(data.pricing.revPAR)}
-            subValue="時間あたり売上"
-            icon={TrendingUp}
-            color="blue"
-          />
-        </div>
+        <SectionHeader
+          sectionKey="revenue"
+          icon={DollarSign}
+          iconColor="text-green-600"
+          label="収益指標"
+          summary={formatCurrency(data.revenue.total)}
+        />
+        {expandedSections.revenue && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-3">
+            <KpiCard
+              title="総売上"
+              value={formatCurrency(data.revenue.total)}
+              icon={DollarSign}
+              color="green"
+            />
+            <KpiCard
+              title="純収入（手数料控除後）"
+              value={formatCurrency(data.revenue.net)}
+              subValue={`手数料: ${formatCurrency(data.revenue.total - data.revenue.net)}`}
+              icon={DollarSign}
+              color="green"
+            />
+            <KpiCard
+              title="1予約あたり単価"
+              value={formatCurrency(data.pricing.avgPerBooking)}
+              icon={DollarSign}
+              color="blue"
+            />
+            <KpiCard
+              title="RevPAR"
+              value={formatCurrency(data.pricing.revPAR)}
+              subValue="時間あたり売上"
+              icon={TrendingUp}
+              color="blue"
+            />
+          </div>
+        )}
       </div>
 
       {/* 顧客指標 */}
       <div>
-        <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-          <Users className="w-5 h-5 text-purple-600" />
-          顧客指標
-        </h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <KpiCard
-            title="ユニーク顧客数"
-            value={data.customer.uniqueGuests.toLocaleString()}
-            subValue="人"
-            icon={Users}
-            color="purple"
-          />
-          <KpiCard
-            title="リピーター数"
-            value={data.customer.repeatGuests.toLocaleString()}
-            subValue="人（2回以上予約）"
-            icon={Users}
-            color="purple"
-          />
-          <KpiCard
-            title="リピート率"
-            value={formatPercent(data.customer.repeatRate)}
-            trend={data.customer.repeatRate > 20 ? "up" : "neutral"}
-            icon={TrendingUp}
-            color="purple"
-          />
-          <KpiCard
-            title="推定LTV"
-            value={formatCurrency(data.customer.estimatedLtv)}
-            subValue="顧客生涯価値"
-            icon={DollarSign}
-            color="purple"
-          />
-        </div>
+        <SectionHeader
+          sectionKey="customer"
+          icon={Users}
+          iconColor="text-purple-600"
+          label="顧客指標"
+          summary={`${data.customer.uniqueGuests}人`}
+        />
+        {expandedSections.customer && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-3">
+            <KpiCard
+              title="ユニーク顧客数"
+              value={data.customer.uniqueGuests.toLocaleString()}
+              subValue="人"
+              icon={Users}
+              color="purple"
+            />
+            <KpiCard
+              title="リピーター数"
+              value={data.customer.repeatGuests.toLocaleString()}
+              subValue="人（2回以上予約）"
+              icon={Users}
+              color="purple"
+            />
+            <KpiCard
+              title="リピート率"
+              value={formatPercent(data.customer.repeatRate)}
+              trend={data.customer.repeatRate > 20 ? "up" : "neutral"}
+              icon={TrendingUp}
+              color="purple"
+            />
+            <KpiCard
+              title="推定LTV"
+              value={formatCurrency(data.customer.estimatedLtv)}
+              subValue="顧客生涯価値"
+              icon={DollarSign}
+              color="purple"
+            />
+          </div>
+        )}
       </div>
 
       {/* 稼働指標 */}
       <div>
-        <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-          <Clock className="w-5 h-5 text-orange-600" />
-          稼働指標
-        </h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <KpiCard
-            title="稼働率"
-            value={formatPercent(data.occupancy.occupancyRate)}
-            trend={data.occupancy.occupancyRate > 30 ? "up" : "down"}
-            icon={Clock}
-            color="orange"
-          />
-          <KpiCard
-            title="1日平均予約数"
-            value={data.occupancy.avgDailyBookings.toFixed(1)}
-            subValue="件/日"
-            icon={Calendar}
-            color="orange"
-          />
-          <KpiCard
-            title="1時間あたり単価"
-            value={formatCurrency(data.pricing.avgPerHour)}
-            icon={DollarSign}
-            color="blue"
-          />
-          <KpiCard
-            title="1人あたり単価"
-            value={formatCurrency(data.pricing.avgPerGuest)}
-            icon={Users}
-            color="blue"
-          />
-        </div>
+        <SectionHeader
+          sectionKey="occupancy"
+          icon={Clock}
+          iconColor="text-orange-600"
+          label="稼働指標"
+          summary={formatPercent(data.occupancy.occupancyRate)}
+        />
+        {expandedSections.occupancy && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-3">
+            <KpiCard
+              title="稼働率"
+              value={formatPercent(data.occupancy.occupancyRate)}
+              trend={data.occupancy.occupancyRate > 30 ? "up" : "down"}
+              icon={Clock}
+              color="orange"
+            />
+            <KpiCard
+              title="1日平均予約数"
+              value={data.occupancy.avgDailyBookings.toFixed(1)}
+              subValue="件/日"
+              icon={Calendar}
+              color="orange"
+            />
+            <KpiCard
+              title="1時間あたり単価"
+              value={formatCurrency(data.pricing.avgPerHour)}
+              icon={DollarSign}
+              color="blue"
+            />
+            <KpiCard
+              title="1人あたり単価"
+              value={formatCurrency(data.pricing.avgPerGuest)}
+              icon={Users}
+              color="blue"
+            />
+          </div>
+        )}
       </div>
 
       {/* 需要分析 */}
       <div>
-        <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-          <Calendar className="w-5 h-5 text-blue-600" />
-          需要分析
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-slate-500">
-                ピーク・オフピーク
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-slate-500">ピーク曜日:</span>
-                  <span className="font-medium text-green-600">
-                    {data.demand.peakDays.join(", ") || "—"}
-                  </span>
+        <SectionHeader
+          sectionKey="demand"
+          icon={Calendar}
+          iconColor="text-blue-600"
+          label="需要分析"
+          summary={data.demand.peakDays.length > 0 ? `ピーク: ${data.demand.peakDays.join(",")}` : undefined}
+        />
+        {expandedSections.demand && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-slate-500">
+                  ピーク・オフピーク
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">ピーク曜日:</span>
+                    <span className="font-medium text-green-600">
+                      {data.demand.peakDays.join(", ") || "—"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">オフピーク曜日:</span>
+                    <span className="font-medium text-red-500">
+                      {data.demand.offPeakDays.join(", ") || "—"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">ピーク時間帯:</span>
+                    <span className="font-medium text-green-600">
+                      {formatHours(data.demand.peakHours) || "—"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">平日/休日比:</span>
+                    <span className="font-medium">
+                      {data.demand.weekdayWeekendRatio.toFixed(2)}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-500">オフピーク曜日:</span>
-                  <span className="font-medium text-red-500">
-                    {data.demand.offPeakDays.join(", ") || "—"}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-500">ピーク時間帯:</span>
-                  <span className="font-medium text-green-600">
-                    {formatHours(data.demand.peakHours) || "—"}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-500">平日/休日比:</span>
-                  <span className="font-medium">
-                    {data.demand.weekdayWeekendRatio.toFixed(2)}
-                  </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
 
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-slate-500">
-                月別売上トップ3
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2 text-sm">
-                {data.seasonality.monthly
-                  .sort((a, b) => b.total - a.total)
-                  .slice(0, 3)
-                  .map((m, i) => (
-                    <div key={m.month} className="flex justify-between items-center">
-                      <span className="text-slate-500">{m.month}月:</span>
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">
-                          {formatCurrency(m.total)}
-                        </span>
-                        {i === 0 && (
-                          <span className="text-xs bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded">
-                            1位
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-slate-500">
+                  月別売上トップ3
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 text-sm">
+                  {data.seasonality.monthly
+                    .sort((a, b) => b.total - a.total)
+                    .slice(0, 3)
+                    .map((m, i) => (
+                      <div key={m.month} className="flex justify-between items-center">
+                        <span className="text-slate-500">{m.month}月:</span>
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">
+                            {formatCurrency(m.total)}
                           </span>
-                        )}
+                          {i === 0 && (
+                            <span className="text-xs bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded">
+                              1位
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+                    ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   BarChart,
   Bar,
@@ -72,6 +73,9 @@ export function LeadTimeAnalysis({
   insights,
   priceRecommendations = [],
 }: LeadTimeAnalysisProps) {
+  const [distributionTab, setDistributionTab] = useState<"count" | "price">("count");
+  const [breakdownTab, setBreakdownTab] = useState<"dayOfWeek" | "purpose">("dayOfWeek");
+
   const formatCurrency = (value: number) => `¥${Math.round(value).toLocaleString()}`;
 
   // 分布データを0-30日に限定
@@ -152,15 +156,39 @@ export function LeadTimeAnalysis({
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* リードタイム分布 */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">リードタイム分布（予約件数）</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-72">
-              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+      {/* リードタイム分布 / 単価 */}
+      <Card>
+        <CardHeader className="pb-2">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base">リードタイム分布</CardTitle>
+            <div className="flex rounded-lg bg-slate-100 p-0.5">
+              <button
+                onClick={() => setDistributionTab("count")}
+                className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
+                  distributionTab === "count"
+                    ? "bg-white text-slate-900 shadow-sm"
+                    : "text-slate-500 hover:text-slate-700"
+                }`}
+              >
+                予約件数
+              </button>
+              <button
+                onClick={() => setDistributionTab("price")}
+                className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
+                  distributionTab === "price"
+                    ? "bg-white text-slate-900 shadow-sm"
+                    : "text-slate-500 hover:text-slate-700"
+                }`}
+              >
+                平均単価
+              </button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="h-64 sm:h-72">
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+              {distributionTab === "count" ? (
                 <BarChart data={distributionData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="日数" tick={{ fontSize: 11 }} />
@@ -174,22 +202,7 @@ export function LeadTimeAnalysis({
                   />
                   <Bar dataKey="予約件数" fill="#3b82f6" radius={[2, 2, 0, 0]} />
                 </BarChart>
-              </ResponsiveContainer>
-            </div>
-            <p className="text-xs text-slate-500 mt-2 text-center">
-              横軸: 予約日から利用日までの日数
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* リードタイム別単価 */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">リードタイム別平均単価</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-72">
-              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+              ) : (
                 <LineChart data={distributionData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="日数" tick={{ fontSize: 11 }} />
@@ -203,24 +216,50 @@ export function LeadTimeAnalysis({
                     dot={{ fill: "#22c55e", strokeWidth: 2, r: 3 }}
                   />
                 </LineChart>
-              </ResponsiveContainer>
-            </div>
-            <p className="text-xs text-slate-500 mt-2 text-center">
-              直前予約の単価傾向を確認
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+              )}
+            </ResponsiveContainer>
+          </div>
+          <p className="text-xs text-slate-500 mt-2 text-center">
+            {distributionTab === "count"
+              ? "横軸: 予約日から利用日までの日数"
+              : "直前予約の単価傾向を確認"}
+          </p>
+        </CardContent>
+      </Card>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* 曜日別リードタイム */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">曜日別平均リードタイム</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+      {/* 曜日別 / 用途別 */}
+      <Card>
+        <CardHeader className="pb-2">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base">リードタイム内訳</CardTitle>
+            <div className="flex rounded-lg bg-slate-100 p-0.5">
+              <button
+                onClick={() => setBreakdownTab("dayOfWeek")}
+                className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
+                  breakdownTab === "dayOfWeek"
+                    ? "bg-white text-slate-900 shadow-sm"
+                    : "text-slate-500 hover:text-slate-700"
+                }`}
+              >
+                曜日別
+              </button>
+              <button
+                onClick={() => setBreakdownTab("purpose")}
+                className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
+                  breakdownTab === "purpose"
+                    ? "bg-white text-slate-900 shadow-sm"
+                    : "text-slate-500 hover:text-slate-700"
+                }`}
+              >
+                用途別
+              </button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+              {breakdownTab === "dayOfWeek" ? (
                 <BarChart data={dayOfWeekData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="曜日" />
@@ -228,19 +267,7 @@ export function LeadTimeAnalysis({
                   <Tooltip />
                   <Bar dataKey="平均リードタイム" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
                 </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* 用途別リードタイム */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">用途別平均リードタイム</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+              ) : (
                 <BarChart
                   data={purposeData}
                   layout="vertical"
@@ -253,11 +280,11 @@ export function LeadTimeAnalysis({
                   <Legend />
                   <Bar dataKey="平均リードタイム" fill="#f97316" radius={[0, 4, 4, 0]} />
                 </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+              )}
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* 価格レコメンド */}
       {priceRecommendations.length > 0 && (
